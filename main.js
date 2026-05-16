@@ -1,3 +1,4 @@
+// ── 1. GLOBAL ELEMENT CONFIGURATIONS ──
 const categoryColors = {
     'Artists': '#2D6A4F',
     'Museums': '#D62828',
@@ -17,6 +18,7 @@ const MAP_W = 5325;
 const MAP_H = 3525;
 const mapBounds = [[-MAP_H, 0], [0, MAP_W]];
 
+// ── 2. MAP LIFE-CYCLE ENGINE ──
 function initMap() {
     if (mapInitialized) {
         if (mapInstance) mapInstance.invalidateSize({ animate: false });
@@ -24,8 +26,9 @@ function initMap() {
     }
 
     const mapContainer = document.getElementById('map');
-    if (!mapContainer || mapContainer.clientWidth === 0 || mapContainer.clientHeight === 0) return;
+    if (!mapContainer) return;
 
+    // We removed the aggressive 0-width block here so it never silently aborts!
     mapInitialized = true;
 
     mapInstance = L.map('map', {
@@ -45,15 +48,32 @@ function initMap() {
     L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
 }
 
+// ── 3. LOCATION POSITION SNAPPING ENGINE ──
 window.zoomToLocation = (id) => {
     if (!mapInstance || !window.directoryData) return;
     const item = window.directoryData.find(d => d.id === id);
-    if (!item || !item.dot) return;
-    
-    // Zoom directly onto the text node
-    mapInstance.setView([-item.dot[1], item.dot[0]], -0.5);
+    if (!item) return;
+
+    let target = null;
+    let zoomLevel = -0.5;
+
+    if (item.dot) {
+        const [x, y] = item.dot;
+        target = [-y, x];
+    } else if (item.box) {
+        const [bx, by, bw, bh] = item.box;
+        const cx = bx + (bw / 2);
+        const cy = by + (bh / 2);
+        target = [-cy, cx];
+    }
+
+    if (target) {
+        mapInstance.setView(target, zoomLevel);
+    }
 };
 
+
+// ── 4. MULTI-TAB CONTROLLER AND FILTER SYSTEM ──
 document.addEventListener('DOMContentLoaded', () => {
     const navBtns = document.querySelectorAll('.nav-btn');
     const views = document.querySelectorAll('.view-section');
@@ -73,7 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
     renderGrids();
 
     window.switchView = (targetId) => {
-        // Toggle the active state on the navigation menu
         navBtns.forEach(btn => {
             if (btn.getAttribute('data-target') === targetId) {
                 btn.classList.add('active');
@@ -82,7 +101,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Hide all views, reveal only the target view
         views.forEach(view => {
             if (view.id === targetId) {
                 view.classList.remove('hidden');
@@ -92,17 +110,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (targetId === 'map-view') {
-            initMap();
-            setTimeout(() => initMap(), 50);
+            // Give the browser 100ms to paint the new tab, then forcefully build and size the map
             setTimeout(() => {
+                initMap();
                 if (mapInstance) {
                     mapInstance.invalidateSize({ animate: false });
                     mapInstance.setView([-MAP_H / 2, MAP_W / 2], -2);
                 }
-            }, 150);
+            }, 100);
+            
+            // Secondary safety check
             setTimeout(() => {
                 if (mapInstance) mapInstance.invalidateSize({ animate: false });
-            }, 450);
+            }, 400);
         }
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -110,7 +130,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     navBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            switchView(btn.getAttribute('data-target'));
+            const targetId = btn.getAttribute('data-target');
+            switchView(targetId);
         });
     });
 
@@ -159,7 +180,9 @@ document.addEventListener('DOMContentLoaded', () => {
             card.setAttribute('data-id', item.id);
             card.style.animationDelay = `${index * 0.01}s`;
             card.innerHTML = `
-                <div class="card-image-wrapper">${getPhotoHtml(item)}</div>
+                <div class="card-image-wrapper">
+                    ${getPhotoHtml(item)}
+                </div>
                 <div class="card-info">
                     <h4>${item.name}</h4>
                     <p>${item.area}</p>
