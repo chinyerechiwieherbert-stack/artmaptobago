@@ -1,3 +1,4 @@
+// Global Styling Configurations
 const categoryColors = {
     'Artists': '#2D6A4F',
     'Museums': '#D62828',
@@ -17,21 +18,16 @@ const MAP_W = 5325;
 const MAP_H = 3525;
 const mapBounds = [[-MAP_H, 0], [0, MAP_W]];
 
-// ── SAFE INITIALIZATION MAP ENGINE ──
+// ── IMMUNE MAP INITIALIZATION ENGINE ──
 function initMap() {
-    // If already created, just force a layout update to prevent grey boxes
-    if (mapInitialized) {
-        if (mapInstance) {
-            mapInstance.invalidateSize();
-        }
-        return;
-    }
+    if (mapInitialized) return;
     
     const mapContainer = document.getElementById('map');
-    if (!mapContainer || mapContainer.clientWidth === 0) return; // Halt if container isn't visible yet
+    if (!mapContainer) return;
 
     mapInitialized = true;
 
+    // Build the Leaflet engine instance mapping workspace parameters
     mapInstance = L.map('map', {
         crs: L.CRS.Simple,
         minZoom: -3,
@@ -44,12 +40,12 @@ function initMap() {
 
     L.imageOverlay('tobago_art_map.jpg', mapBounds).addTo(mapInstance);
     
-    // Scale down instantly to fit perfectly on screen on first layout parse
-    mapInstance.fitBounds(mapBounds);
+    // IMMUNITY FIX: Set explicit coordinate center point to prevent browser repaint failures
+    mapInstance.setView([-1762.5, 2662.5], -2);
     window.map = mapInstance;
 }
 
-// ── MANUAL HEADER PANEL NAVIGATION ACTIONS ──
+// ── MANUAL TOP FILTER NAVIGATION BINDS ──
 window.manualZoomIn = () => {
     if (mapInstance) mapInstance.zoomIn(0.5);
 };
@@ -59,10 +55,13 @@ window.manualZoomOut = () => {
 };
 
 window.resetMapFrame = () => {
-    if (mapInstance) mapInstance.fitBounds(mapBounds);
+    if (mapInstance) {
+        // Snaps map frame back to absolute center of the layout graphic instantly
+        mapInstance.setView([-1762.5, 2662.5], -2);
+    }
 };
 
-// Precise Point Mapping Axis Translator
+// ── ACCURATE PINPOINT TRACKING ENGINE ──
 window.zoomToLocation = (id) => {
     if (!mapInstance || !window.directoryData) return;
     const item = window.directoryData.find(d => d.id === id);
@@ -71,6 +70,7 @@ window.zoomToLocation = (id) => {
     let targetX = 0;
     let targetY = 0;
 
+    // Pull precise location data coordinates directly from calibration vectors
     if (item.dot) {
         targetX = item.dot[0];
         targetY = item.dot[1];
@@ -81,12 +81,15 @@ window.zoomToLocation = (id) => {
         return; 
     }
 
+    // Invert the layout coordinate vector to position perfectly on Leaflet Cartesian canvas grids
     const centerPoint = [-targetY, targetX];
-    mapInstance.setView(centerPoint, -0.5);
+    
+    // Zoom -1 keeps the view framed perfectly around their region instead of zooming too close into raw background ocean color
+    mapInstance.setView(centerPoint, -1);
 };
 
 
-// ── RUN CONTROLLER LOGIC ON DOC READY ──
+// ── APPLICATION INITIALIZATION CONTROLLER ──
 document.addEventListener('DOMContentLoaded', () => {
     const navBtns = document.querySelectorAll('.nav-btn');
     const views = document.querySelectorAll('.view-section');
@@ -102,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentRegion = 'All';
     let currentCategory = 'All';
 
-    // Renders list content instantly on background stack execution loop
+    // Build the standalone grid sheets and sidebar items instantly in the background stack loop
     renderDirectory();
     renderGrids();
 
@@ -124,21 +127,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (targetId === 'map-view') {
-            // Force Leaflet initialization ONLY when container is unhidden
+            // Wake up map framework with safe layout rendering delays
+            initMap();
             setTimeout(() => {
                 initMap();
                 if (mapInstance) {
                     mapInstance.invalidateSize();
-                    mapInstance.fitBounds(mapBounds);
                 }
-            }, 50);
+            }, 100);
             
-            // Backup sequence block if rendering takes an extra split-second on Vercel
             setTimeout(() => {
                 if (mapInstance) {
                     mapInstance.invalidateSize();
                 }
-            }, 300);
+            }, 400);
         }
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
