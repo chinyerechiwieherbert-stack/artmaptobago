@@ -1,4 +1,4 @@
-// Shared UI Configurations
+// ── CONSTANTS & GLOBAL CONFIGURATION ──
 const categoryColors = {
     'Artists': '#2D6A4F',
     'Museums': '#D62828',
@@ -18,7 +18,7 @@ const MAP_W = 5325;
 const MAP_H = 3525;
 const mapBounds = [[-MAP_H, 0], [0, MAP_W]];
 
-// ── FLUID GEOMETRY MAP INITIALIZER ──
+// ── CORE LEAFLET IMAGE ENGINE ──
 function initMap() {
     if (mapInitialized) {
         if (mapInstance) mapInstance.invalidateSize({ animate: false });
@@ -28,7 +28,7 @@ function initMap() {
     const mapContainer = document.getElementById('map');
     if (!mapContainer) return;
 
-    // Safety check: ensure container layout holds visibility before initialization
+    // Safety check to ensure container layout holds dimensions completely
     if (mapContainer.clientWidth === 0 || mapContainer.clientHeight === 0) return;
 
     mapInitialized = true;
@@ -43,15 +43,15 @@ function initMap() {
         maxBoundsViscosity: 1.0
     });
 
-    // Clean flat path mapping directly into root repository asset context
+    // Load base artwork directly from repository root
     L.imageOverlay('tobago_art_map.jpg', mapBounds).addTo(mapInstance);
     
-    // Default initial frame position
-    mapInstance.setView([-1762.5, 2662.5], -2);
+    // Set initial viewpoint centered on the whole island asset spread
+    mapInstance.setView([-MAP_H / 2, MAP_W / 2], -2);
     window.map = mapInstance;
 }
 
-// ── MANUAL HEADER PANEL CONTROLS ──
+// ── MANUAL FILTER BAR CONTROL INTERFACES ──
 window.manualZoomIn = () => {
     if (mapInstance) mapInstance.zoomIn(0.5);
 };
@@ -61,17 +61,19 @@ window.manualZoomOut = () => {
 };
 
 window.resetMapFrame = () => {
-    if (mapInstance) mapInstance.setView([-1762.5, 2662.5], -2);
+    if (mapInstance) {
+        mapInstance.setView([-MAP_H / 2, MAP_W / 2], -2);
+    }
 };
 
-// Precise Point Locator Axis Fix
+// Precise Point Mapping Axis Focus Translator
 window.zoomToLocation = (id) => {
     if (!mapInstance || !window.directoryData) return;
     const item = window.directoryData.find(d => d.id === id);
     if (!item) return;
 
     let target = null;
-    let zoomLevel = -0.5; // Framed zoom view level depth
+    let zoomLevel = -0.5; // Premium framed zoom comfort depth layer
 
     if (item.dot) {
         const [x, y] = item.dot;
@@ -89,7 +91,7 @@ window.zoomToLocation = (id) => {
 };
 
 
-// ── APPLICATION INTERFACE CONTROLLER LAYER ──
+// ── APPLICATION NAVIGATION AND DOM INTERFACE LAYER ──
 document.addEventListener('DOMContentLoaded', () => {
     const navBtns = document.querySelectorAll('.nav-btn');
     const views = document.querySelectorAll('.view-section');
@@ -105,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentRegion = 'All';
     let currentCategory = 'All';
 
-    // Populate components immediately inside background engine stack
+    // Build front-end components instantly
     renderDirectory();
     renderGrids();
 
@@ -127,17 +129,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (targetId === 'map-view') {
-            // Give layout views a fractional delay to resolve styles before building map
+            // Force Leaflet initialization sequence blocks
+            initMap();
             setTimeout(() => {
                 initMap();
             }, 50);
             setTimeout(() => {
                 if (mapInstance) mapInstance.invalidateSize({ animate: false });
-                window.resetMapFrame();
-            }, 200);
+            }, 150);
             setTimeout(() => {
                 if (mapInstance) mapInstance.invalidateSize({ animate: false });
-            }, 500);
+            }, 400);
         }
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
