@@ -15,7 +15,7 @@ let mapInstance;
 let markers = [];
 let mapInitialized = false;
 
-// ── MAP INITIALIZATION ENGINE ──
+// ── FIXED LEAFLET SIMPLIFIED PIXEL MAPPING ENGINE ──
 function initMap() {
     if (mapInitialized) return;
     
@@ -43,11 +43,16 @@ function initMap() {
 
     L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
 
-    // Build map hotspots from directory data properties
+    // Build map hotspots with inverted Leaflet math parameters
     if (window.directoryData && Array.isArray(window.directoryData)) {
         window.directoryData.forEach(item => {
             if (item.box) {
                 const [bx, by, bw, bh] = item.box;
+                
+                // CRITICAL CORRECTION: In CRS.Simple, the top edge of the box 
+                // must be calculated relative to the absolute top anchor (0).
+                // Top-Left corner is [ -by, bx ]
+                // Bottom-Right corner is [ -(by + bh), bx + bw ]
                 const rectBounds = [[-(by + bh), bx], [-by, bx + bw]];
                 
                 const hotspot = L.rectangle(rectBounds, {
@@ -251,10 +256,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
             
-            // Map Zoom Binding Added Here: 
             card.addEventListener('click', () => {
                 window.zoomToLocation(item.id);
-                // Also highlight on hotspot map overlay
                 window.highlightHotspot(item.id);
             });
             
