@@ -1,3 +1,4 @@
+// Global Configuration Object
 const categoryColors = {
     'Artists': '#2D6A4F',
     'Museums': '#D62828',
@@ -14,7 +15,7 @@ const categoryColors = {
 let mapInstance;
 let mapInitialized = false;
 
-// ── FIXED COORDINATE SCALAR ZOOM ENGINE ──
+// ── INSTANT RE-CENTERING MAP ENGINE (MANUAL ZOOM SELECTION) ──
 function initMap() {
     if (mapInitialized) return;
     
@@ -36,14 +37,18 @@ function initMap() {
         maxBoundsViscosity: 1.0
     });
 
+    // Load base artwork directly from repository root
     L.imageOverlay('tobago_art_map.jpg', bounds).addTo(mapInstance);
+    
+    // Default initial frame: Center the entire map layout immediately on load
     mapInstance.fitBounds(bounds);
     window.map = mapInstance;
 
+    // Manual Zoom Controls anchored perfectly in the bottom right corner
     L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
 }
 
-// THE CULPRIT IS FIXED HERE: Explicitly assigning X and Y array mappings
+// Fixed Instant View Center Panning
 window.zoomToLocation = (id) => {
     if (!mapInstance || !window.directoryData) return;
     const item = window.directoryData.find(d => d.id === id);
@@ -52,8 +57,8 @@ window.zoomToLocation = (id) => {
     let targetX = 0;
     let targetY = 0;
 
+    // Evaluate absolute layout pixel properties cleanly
     if (item.dot) {
-        // Data format is [X, Y]. X is index 0 (Horizontal), Y is index 1 (Vertical)
         targetX = item.dot[0];
         targetY = item.dot[1];
     } else if (item.box) {
@@ -63,18 +68,15 @@ window.zoomToLocation = (id) => {
         return; 
     }
 
-    // Leaflet Simple CRS expects [-Y, X] geometry placement
-    const accurateMapLatLng = [-targetY, targetX];
+    // Invert the layout y-axis vector to point inside Leaflet workspace constraints
+    const fixedLatLng = [-targetY, targetX];
     
-    // Zoom levels: 0 is closer, -1 is slightly further back so you can see the name context clearly
-    mapInstance.flyTo(accurateMapLatLng, -1, {
-        duration: 1.5,
-        easeLinearity: 0.25
-    });
+    // Set view instantly with zero animation delays to prevent frame drift
+    mapInstance.setView(fixedLatLng, -0.5);
 };
 
 
-// ── CONTROLLER LAYER ──
+// ── DIRECTORY INTERFACE LAYER ──
 document.addEventListener('DOMContentLoaded', () => {
     const navBtns = document.querySelectorAll('.nav-btn');
     const views = document.querySelectorAll('.view-section');
@@ -90,8 +92,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentRegion = 'All';
     let currentCategory = 'All';
 
+    // Wake up base map context layout framework
     initMap();
-    setTimeout(() => { initMap(); }, 200);
+    setTimeout(() => { 
+        initMap(); 
+        if (mapInstance) mapInstance.invalidateSize();
+    }, 200);
 
     window.switchView = (targetId) => {
         navBtns.forEach(btn => {
@@ -114,8 +120,12 @@ document.addEventListener('DOMContentLoaded', () => {
             initMap();
             if (mapInstance) {
                 mapInstance.invalidateSize();
+                const w = 5325;
+                const h = 3525;
+                mapInstance.fitBounds([[-h, 0], [0, w]]);
+                
                 setTimeout(() => mapInstance.invalidateSize(), 50);
-                setTimeout(() => mapInstance.invalidateSize(), 200);
+                setTimeout(() => mapInstance.invalidateSize(), 250);
             }
         }
         window.scrollTo({ top: 0, behavior: 'smooth' });
