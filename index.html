@@ -4,156 +4,192 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tobago Art Map — Digital Hub</title>
-
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
-
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-
-    <!-- Main CSS (FIXED: root level) -->
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-
-<!-- HEADER (UNCHANGED) -->
-<header class="main-header">
-    <div class="logo-container">
-        <a href="#" class="logo">Tobago Art Map</a>
-    </div>
-    <nav class="main-nav">
-        <button class="nav-btn active" data-target="home-view">Home</button>
-        <button class="nav-btn" data-target="map-view">Explore Map</button>
-        <button class="nav-btn" data-target="artists-view">Artists</button>
-        <button class="nav-btn" data-target="attractions-view">Attractions</button>
-        <button class="nav-btn" data-target="festivals-view">Festivals</button>
-        <button class="nav-btn" data-target="about-view">About</button>
-    </nav>
-</header>
-
-<!-- HOME -->
-<div id="home-view" class="view-section">
-
-    <section class="immersive-hero">
-
-        <!-- FIXED PATH (NO assets/) -->
-        <div class="parallax-layer layer-bg">
-            <img src="tobago_art_map.jpg" alt="Tobago Art Map Background" class="hero-map-img">
+    <header class="main-header">
+        <div class="logo-container">
+            <a href="#" class="logo">Tobago Art Map</a>
         </div>
+        <nav class="main-nav">
+            <button class="nav-btn active" data-target="home-view">Home</button>
+            <button class="nav-btn" data-target="map-view">Explore Map</button>
+            <button class="nav-btn" data-target="artists-view">Artists</button>
+            <button class="nav-btn" data-target="attractions-view">Attractions</button>
+            <button class="nav-btn" data-target="festivals-view">Festivals</button>
+            <button class="nav-btn" data-target="about-view">About</button>
+        </nav>
+    </header>
 
-        <div class="parallax-layer layer-water"></div>
-
-        <div class="parallax-layer layer-clouds">
-            <div class="cloud cloud-1"></div>
-            <div class="cloud cloud-2"></div>
-            <div class="cloud cloud-3"></div>
-        </div>
-
-        <div class="hero-overlay">
-            <div class="hero-content-wrapper">
-                <h1 class="hero-title-main">Art Map Tobago</h1>
-                <p class="hero-tagline">A Living Interactive Cultural Atlas</p>
-
-                <div class="hero-actions">
-                    <button class="btn-enter" onclick="switchView('map-view')">
-                        Explore the Island
-                    </button>
-                </div>
+    <div id="home-view" class="view-section">
+        <section class="immersive-hero">
+            <div class="parallax-layer layer-bg">
+                <img src="tobago_art_map.jpg" alt="Tobago Art Map Background" class="hero-map-img">
             </div>
-        </div>
-
-    </section>
-
-    <!-- DOWNLOAD FIXED -->
-    <section class="heritage-preview">
-
-        <div class="section-container">
-            <div class="heritage-grid">
-
-                <div class="heritage-text">
-
-                    <span class="eyebrow">The Collection</span>
-
-                    <h2>Preserving the<br>Creative Pulse</h2>
-
-                    <p>
-                        The Tobago Art Map is more than a guide—it's a celebration of our island's vibrant creative ecosystem.
-                        From rainforest heritage to Scarborough galleries.
-                    </p>
-
-                    <!-- FIXED DOWNLOAD PATHS -->
-                    <div class="download-cta-group">
-
-                        <a href="tobago_art_map.jpg" download>
-                            Download Map Side<br>
-                            <small>High-Res Artwork</small>
-                        </a>
-
-                        <a href="tobago_art_map_info.jpg" download>
-                            Download Directory Side<br>
-                            <small>Artist & Site Index</small>
-                        </a>
-
+            <div class="parallax-layer layer-water"></div>
+            <div class="parallax-layer layer-clouds">
+                <div class="cloud cloud-1"></div>
+                <div class="cloud cloud-2"></div>
+                <div class="cloud cloud-3"></div>
+            </div>
+            
+            <div class="hero-overlay">
+                <div class="hero-content-wrapper">
+                    <h1 class="hero-title-main">Art Map Tobago</h1>
+                    <p class="hero-tagline">A Living Interactive Cultural Atlas</p>
+                    <div class="hero-actions">
+                        <button class="btn-enter" onclick="switchView('map-view')">
+                            <span>Explore the Island</span>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </button>
                     </div>
-
                 </div>
+            </div>
+            
+            <div class="scroll-indicator">
+                <span>Discover More</span>
+                <div class="mouse"></div>
+            </div>
+        </section>
 
+        <section class="heritage-preview">
+            <div class="section-container">
+                <div class="heritage-grid">
+                    <div class="heritage-text">
+                        <span class="eyebrow">The Collection</span>
+                        <h2>Preserving the <br>Creative Pulse</h2>
+                        <p>The Tobago Art Map is more than a guide—it's a celebration of our island's vibrant creative ecosystem. From the oldest protected rainforest in the Western Hemisphere to the bustling galleries of Scarborough, explore the people and places that define our culture.</p>
+                        <div class="download-cta-group">
+                            <a href="tobago_art_map.jpg" download class="download-link">
+                                <strong>Download Map Side</strong>
+                                <span>High-Res Artwork</span>
+                            </a>
+                            <a href="tobago_art_map_info.jpg" download class="download-link">
+                                <strong>Download Directory Side</strong>
+                                <span>Artist & Site Index</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="heritage-visual">
+                        <img src="tobago_art_map_info.jpg" alt="Art Map Directory" class="floating-artwork">
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div id="map-view" class="view-section hidden">
+        <div class="explore-container">
+            <aside class="directory-side">
+                <div class="directory-header">
+                    <h2>Directory</h2>
+                    <div class="filter-group">
+                        <span class="filter-label">Filter by Region</span>
+                        <div class="filter-tags" id="region-filters">
+                            <span class="tag active" data-region="All">All</span>
+                            <span class="tag" data-region="Southwest">Southwest</span>
+                            <span class="tag" data-region="Scarborough/Central">Scarborough</span>
+                            <span class="tag" data-region="Western Coast">Western</span>
+                            <span class="tag" data-region="North Coast & Windward">Northern</span>
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <span class="filter-label">Filter by Category</span>
+                        <div class="filter-tags" id="category-filters">
+                            <span class="tag active" data-category="All">All</span>
+                            <span class="tag" data-category="Artists">Artists</span>
+                            <span class="tag" data-category="Museums">Museums</span>
+                            <span class="tag" data-category="Galleries">Galleries</span>
+                            <span class="tag" data-category="Heritage">Heritage</span>
+                            <span class="tag" data-category="Festivals">Festivals</span>
+                            <span class="tag" data-category="Nature">Nature</span>
+                            <span class="tag" data-category="Creative Businesses">Business</span>
+                            <span class="tag" data-category="Workshops">Workshops</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="directory-list" id="directory-list">
+                    </div>
+            </aside>
+
+            <main class="map-side">
+                <div id="map"></div>
+            </main>
+        </div>
+    </div>
+
+    <div id="artists-view" class="view-section hidden" style="padding: 4rem 2rem;">
+        <h2 style="font-size: 3rem; text-align: center; margin-bottom: 3rem; color: var(--primary-green);">Artist Directory</h2>
+        <div id="artist-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto;">
+            </div>
+    </div>
+
+    <div id="attractions-view" class="view-section hidden" style="padding: 4rem 2rem;">
+        <h2 style="font-size: 3rem; text-align: center; margin-bottom: 3rem; color: var(--primary-green);">Attractions & Heritage</h2>
+        <div id="attractions-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto;">
+            </div>
+    </div>
+
+    <div id="festivals-view" class="view-section hidden" style="padding: 4rem 2rem;">
+        <h2 style="font-size: 3rem; text-align: center; margin-bottom: 3rem; color: var(--primary-green);">Festivals & Cultural Experiences</h2>
+        <p style="text-align: center; max-width: 700px; margin: 0 auto 3rem; font-size: 1.1rem; color: var(--text-muted);">Tobago's vibrant calendar of festivals, competitions, and cultural traditions.</p>
+        <div id="festivals-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto;">
+            </div>
+    </div>
+
+    <div id="about-view" class="view-section hidden" style="padding: 6rem 2rem; align-items: center;">
+        <div style="max-width: 800px; text-align: center;">
+            <h1 style="font-size: 4rem; color: var(--primary-green); margin-bottom: 1rem;">The Art Map 2026</h1>
+            <h2 style="font-size: 1.5rem; color: var(--primary-red); margin-bottom: 3rem; text-transform: uppercase; letter-spacing: 2px;">Tropical Curated Modernism</h2>
+            <div style="font-size: 1.2rem; color: var(--text-dark); line-height: 1.8; text-align: left; background: white; padding: 3rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);">
+                <p style="margin-bottom: 1.5rem;">The Tobago Art Map is a curated guide to the island's vibrant creative ecosystem. From the oldest protected rainforest in the Western Hemisphere to the bustling streets of Scarborough, we celebrate the artists, galleries, and heritage sites that make Tobago unique.</p>
+                <p style="margin-bottom: 1.5rem;">This digital hub serves as an interactive extension of our physical map, providing deeper insights, exact locations, and direct connections to the people and places that define Tobago's cultural landscape.</p>
+                <p>Our design philosophy, <strong>Tropical Curated Modernism</strong>, balances the organic beauty of the Caribbean with a clean, structured aesthetic, reflecting the island's dual nature as both a natural paradise and a historical crossroads.</p>
             </div>
         </div>
-
-    </section>
-
-</div>
-
-<!-- MAP VIEW -->
-<div id="map-view" class="view-section hidden">
-    <div class="explore-container">
-
-        <aside class="directory-side">
-            <div id="directory-list"></div>
-        </aside>
-
-        <main class="map-side">
-            <div id="map"></div>
-        </main>
-
     </div>
-</div>
 
-<!-- OTHER VIEWS (UNCHANGED) -->
-<div id="artists-view" class="view-section hidden"><div id="artist-grid"></div></div>
-<div id="attractions-view" class="view-section hidden"><div id="attractions-grid"></div></div>
-<div id="festivals-view" class="view-section hidden"><div id="festivals-grid"></div></div>
-<div id="about-view" class="view-section hidden"><h1>The Art Map 2026</h1></div>
-
-<!-- MODAL -->
-<div class="modal-overlay" id="profile-modal">
-    <div class="modal-content">
-        <button class="close-modal">&times;</button>
-        <img id="modal-img">
-        <h2 id="modal-title"></h2>
-        <p id="modal-desc"></p>
+    <div class="modal-overlay" id="profile-modal">
+        <div class="modal-content">
+            <button class="close-modal">&times;</button>
+            <div class="modal-visual">
+                <img id="modal-img" src="" alt="">
+            </div>
+            <div class="modal-details">
+                <div class="modal-meta">
+                    <span id="modal-category">Artist</span>
+                    <span id="modal-region">Southwest</span>
+                </div>
+                <h2 class="modal-title" id="modal-title">Name</h2>
+                <p class="modal-desc" id="modal-desc">Description</p>
+                <div class="modal-info">
+                    <div class="modal-info-item">
+                        <strong>Location:</strong>
+                        <span id="modal-area">Area</span>
+                    </div>
+                    <div class="modal-info-item">
+                        <strong>Contact:</strong>
+                        <span id="modal-contact">Contact Info</span>
+                    </div>
+                    <div class="modal-info-item" id="modal-address-container">
+                        <strong>Address:</strong>
+                        <span id="modal-address">Address</span>
+                    </div>
+                </div>
+                <button class="btn-primary" id="btn-view-on-map" style="margin-top: 2rem;">View on Interactive Map</button>
+            </div>
+        </div>
     </div>
-</div>
 
-<!-- SCRIPTS (CRITICAL FIX ORDER) -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<script src="data.js"></script>
-<script src="map.js"></script>
-<script src="main.js"></script>
-
-<!-- SAFE MAP INIT -->
-<script>
-window.addEventListener("load", function () {
-    if (typeof initMapIfNeeded === "function") {
-        initMapIfNeeded();
-    }
-});
-</script>
-
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="data.js"></script>
+    <script src="main.js"></script>
+    <script src="map.js"></script>
 </body>
 </html>
