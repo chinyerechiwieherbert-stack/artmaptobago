@@ -536,19 +536,57 @@ h1, h2, h3, h4, h5, h6 {
     min-height: 400px; 
   }
 
-  /* CRITICAL FIX: Forces cards to stack flawlessly on small screens so images don't warp */
+  /* CRITICAL FIX: Overrides inline HTML styles to stack grids flawlessly */
   #artist-grid, 
   #attractions-grid, 
-  #festivals-grid {
+  #festivals-grid,
+  .heritage-grid {
     grid-template-columns: 1fr !important;
     gap: 1.5rem !important;
   }
 
+  /* Shrinks the massive Home Page text */
+  .hero-title-main { 
+    font-size: 2.8rem !important; 
+    letter-spacing: 2px !important; 
+  }
+  .hero-tagline { 
+    font-size: 1rem !important; 
+    margin-bottom: 1.5rem !important; 
+  }
+  .hero-content-wrapper { 
+    padding: 2rem 1rem !important; 
+    width: 90%; 
+    margin: 0 auto; 
+  }
+  .heritage-text h2 { 
+    font-size: 2.2rem !important; 
+  }
+
+  /* Shrinks the massive Headers on other tabs */
+  #artists-view h2, 
+  #attractions-view h2, 
+  #festivals-view h2 {
+    font-size: 2rem !important; 
+    margin-bottom: 1.5rem !important;
+  }
+  
+  #about-view h1 { 
+    font-size: 2.5rem !important; 
+  }
+  #about-view h2 { 
+    font-size: 1.1rem !important; 
+  }
+  #about-view div[style] { 
+    padding: 1.5rem !important; 
+  }
+
+  /* View constraints and image scaling */
   .view-section {
     padding: 2rem 1rem !important;
   }
 
   .grid-card-visual {
-    height: 220px;
+    height: 220px !important;
   }
 }
