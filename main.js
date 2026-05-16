@@ -1,4 +1,4 @@
-// Global Configuration Objects
+// ── 1. GLOBAL PALETTE CONFIGURATIONS ──
 const categoryColors = {
     'Artists': '#2D6A4F',
     'Museums': '#D62828',
@@ -18,7 +18,7 @@ const MAP_W = 5325;
 const MAP_H = 3525;
 const mapBounds = [[-MAP_H, 0], [0, MAP_W]];
 
-// ── FIXED SIDE-BY-SIDE MAP INITIALIZATION ENGINE ──
+// ── 2. CORE MAP LIFECYCLE INITIALIZER ──
 function initMap() {
     if (mapInitialized) {
         if (mapInstance) mapInstance.invalidateSize({ animate: false });
@@ -28,7 +28,7 @@ function initMap() {
     const mapContainer = document.getElementById('map');
     if (!mapContainer) return;
 
-    // Safety fallback: if the map element hasn't computed sizes yet under flexbox/grid tab switches, wait
+    // Safety fallback: if the map element is still unrendered (0 width/height), wait for tab visibility
     if (mapContainer.clientWidth === 0 || mapContainer.clientHeight === 0) return;
 
     mapInitialized = true;
@@ -37,35 +37,36 @@ function initMap() {
         crs: L.CRS.Simple,
         minZoom: -3,
         maxZoom: 1,
-        zoomControl: false,
+        zoomControl: false, // Cleaner minimalist look
         attributionControl: false,
         maxBounds: mapBounds,
         maxBoundsViscosity: 1.0
     });
 
-    // Clean flat path pointing directly to your root image file on GitHub
+    // Reference the high-res map file in your flat repository root
     L.imageOverlay('tobago_art_map.jpg', mapBounds).addTo(mapInstance);
     
-    // Default initial frame: show the whole map cleanly centered
+    // Default initial frame: display the entire map artwork centered neatly
     mapInstance.setView([-MAP_H / 2, MAP_W / 2], -2);
     window.map = mapInstance;
 
-    // Standard native zoom keys mapped smoothly to the bottom right corner
+    // Place the default Leaflet zoom controls cleanly in the bottom right corner
     L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
 }
 
-// ── FIXED ZOOM TO LOCATION FUNCTION ──
+// ── 3. ACCURATE DIRECTORY SIDEBAR FOCUS SNAPPING ENGINE ──
 window.zoomToLocation = (id) => {
     if (!mapInstance || !window.directoryData) return;
     const item = window.directoryData.find(d => d.id === id);
     if (!item) return;
 
     let target = null;
-    let zoomLevel = -0.5; // Framed zoom scale comfort level depth
+    let zoomLevel = -0.5; // Framed comfort zoom level to clearly display the name text label
 
     if (item.dot) {
+        // Data coordinates map to [Horizontal X, Vertical Y]
         const [x, y] = item.dot;
-        target = [-y, x];
+        target = [-y, x]; // Translated into negative Cartesian grid space
     } else if (item.box) {
         const [bx, by, bw, bh] = item.box;
         const cx = bx + (bw / 2);
@@ -79,7 +80,7 @@ window.zoomToLocation = (id) => {
 };
 
 
-// ── CORE CONTROLLER LAYER ──
+// ── 4. MULTI-TAB ROUTER AND INTERFACE CONTROLLER ──
 document.addEventListener('DOMContentLoaded', () => {
     const navBtns = document.querySelectorAll('.nav-btn');
     const views = document.querySelectorAll('.view-section');
@@ -95,11 +96,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentRegion = 'All';
     let currentCategory = 'All';
 
-    // Render list contents immediately on start
+    // Populate data matrices into standard directory lists instantly on page mount
     renderDirectory();
     renderGrids();
 
-    // Re-synchronized View Switcher
+    // RESTORED: Implements pristine separate view toggle routing
     window.switchView = (targetId) => {
         navBtns.forEach(btn => {
             if (btn.getAttribute('data-target') === targetId) {
@@ -117,18 +118,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        // IMMUNITY FLOW: Recalculate dimensions across stepped intervals to eliminate the grey box quirk
         if (targetId === 'map-view') {
-            // Force rendering intervals to safeguard Leaflet against layout sizing latency
             initMap();
+            setTimeout(() => initMap(), 50);
             setTimeout(() => {
-                initMap();
-            }, 50);
-            setTimeout(() => {
-                if (mapInstance) mapInstance.invalidateSize({ animate: false });
+                if (mapInstance) {
+                    mapInstance.invalidateSize({ animate: false });
+                    mapInstance.setView([-MAP_H / 2, MAP_W / 2], -2); // Default overview frame lock
+                }
             }, 150);
             setTimeout(() => {
                 if (mapInstance) mapInstance.invalidateSize({ animate: false });
-            }, 400);
+            }, 450);
         }
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -141,6 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Filtering Event Handlers
     regionTags.forEach(tag => {
         tag.addEventListener('click', () => {
             regionTags.forEach(t => t.classList.remove('active'));
@@ -289,24 +292,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 350);
         };
     }
-
-    window.highlightInDirectory = (id, scroll = true) => {
-        const targetCard = document.querySelector(`.directory-card[data-id="${id}"]`);
-        if (targetCard) {
-            if (scroll) targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            targetCard.classList.add('highlight-active');
-        }
-    };
-
-    window.unhighlightInDirectory = (id) => {
-        const targetCard = document.querySelector(`.directory-card[data-id="${id}"]`);
-        if (targetCard) targetCard.classList.remove('highlight-active');
-    };
-
-    window.showProfile = (id) => {
-        const item = window.directoryData.find(d => d.id === id);
-        if (item) openModal(item);
-    };
 
     closeModalBtn.addEventListener('click', () => modal.classList.remove('active'));
     modal.addEventListener('click', (e) => {
