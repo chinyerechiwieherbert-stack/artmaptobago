@@ -1,483 +1,291 @@
-:root {
-  --primary-green: #2D6A4F; 
-  --accent-green: #52B788;  
-  --primary-blue: #0077B6;  
-  --bg-offwhite: #F9F7F2;   
-  --bg-panel: #FFFFFF;
-  --text-dark: #1B1B1B;
-  --text-muted: #4A4A4A;
-  --primary-red: #D62828;
-  
-  --font-header: 'Playfair Display', serif;
-  --font-body: 'Montserrat', sans-serif;
-  
-  --shadow-sm: 0 4px 6px rgba(0,0,0,0.05);
-  --shadow-md: 0 10px 20px rgba(0,0,0,0.08);
-  --shadow-lg: 0 20px 40px rgba(0,0,0,0.12);
-  
-  --radius-md: 4px;
-  --radius-lg: 12px;
-  --border-thin: 1px solid rgba(27, 27, 27, 0.1);
-  --border-strong: 2px solid var(--text-dark);
-  --header-height: 80px;
+// Global Configuration Objects
+const categoryColors = {
+    'Artists': '#2D6A4F',
+    'Museums': '#D62828',
+    'Galleries': '#D62828',
+    'Heritage': '#D62828',
+    'Nature': '#0077B6',
+    'Cultural Sites': '#E0A96D',
+    'Creative Businesses': '#2D6A4F',
+    'Workshops': '#2D6A4F',
+    'Festivals': '#E0A96D',
+    'Public Art': '#2D6A4F'
+};
+
+let mapInstance = null;
+let mapInitialized = false;
+const MAP_W = 5325;
+const MAP_H = 3525;
+const mapBounds = [[-MAP_H, 0], [0, MAP_W]];
+
+// ── FIXED SPLIT-VIEW MAP INITIALIZATION ENGINE ──
+function initMap() {
+    if (mapInitialized) {
+        if (mapInstance) mapInstance.invalidateSize({ animate: false });
+        return;
+    }
+
+    const mapContainer = document.getElementById('map');
+    if (!mapContainer) return;
+
+    // Safety fallback: if map element has no physical dimensions layout calculations yet, pause
+    if (mapContainer.clientWidth === 0 || mapContainer.clientHeight === 0) return;
+
+    mapInitialized = true;
+
+    mapInstance = L.map('map', {
+        crs: L.CRS.Simple,
+        minZoom: -3,
+        maxZoom: 1,
+        zoomControl: false,
+        attributionControl: false,
+        maxBounds: mapBounds,
+        maxBoundsViscosity: 1.0
+    });
+
+    // Reference the root image file directly from repository root
+    L.imageOverlay('tobago_art_map.jpg', mapBounds).addTo(mapInstance);
+    
+    // Default initial frame: display the entire map artwork centered neatly
+    mapInstance.setView([-MAP_H / 2, MAP_W / 2], -2);
+    window.map = mapInstance;
+
+    // Place default zoom control keys in position safely
+    L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+// ── ROBUST COORD GEOMETRY ZOOM ENGINE ──
+window.zoomToLocation = (id) => {
+    if (!mapInstance || !window.directoryData) return;
+    const item = window.directoryData.find(d => d.id === id);
+    if (!item || !item.dot) return;
 
-body {
-  font-family: var(--font-body);
-  background-color: var(--bg-offwhite);
-  color: var(--text-dark);
-}
+    // Coordinates match [X, Y] array indexes precisely
+    const targetX = item.dot[0];
+    const targetY = item.dot[1];
 
-body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url('https://www.transparenttextures.com/patterns/natural-paper.png');
-  opacity: 0.4;
-  pointer-events: none;
-  z-index: -1;
-}
+    // Map targets inside Leaflet Cartesian workspace grid lines
+    const fixedLatLng = [-targetY, targetX];
+    
+    // Zoom -0.5 frames close focus perfectly over text nodes
+    mapInstance.setView(fixedLatLng, -0.5);
+};
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-header);
-  color: var(--text-dark);
-  font-weight: 700;
-}
 
-.main-header {
-  height: var(--header-height);
-  padding: 0 3rem;
-  background-color: var(--primary-green);
-  border-bottom: var(--border-strong);
-  border-color: rgba(255, 255, 255, 0.1);
-  display: flex;
-  justify-content: space-between;
-  align-items: stretch;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  box-shadow: var(--shadow-md);
-}
+// ── ENGINE CONTROLLER ROUTER ──
+document.addEventListener('DOMContentLoaded', () => {
+    const navBtns = document.querySelectorAll('.nav-btn');
+    const views = document.querySelectorAll('.view-section');
+    const directoryList = document.getElementById('directory-list');
+    const artistGrid = document.getElementById('artist-grid');
+    const attractionsGrid = document.getElementById('attractions-grid');
+    const festivalsGrid = document.getElementById('festivals-grid');
+    const regionTags = document.querySelectorAll('#region-filters .tag');
+    const categoryTags = document.querySelectorAll('#category-filters .tag');
+    const modal = document.getElementById('profile-modal');
+    const closeModalBtn = document.querySelector('.close-modal');
+    
+    let currentRegion = 'All';
+    let currentCategory = 'All';
 
-.logo {
-  font-family: var(--font-header);
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: white;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-}
+    // Populate data listings immediately on thread initialization
+    renderDirectory();
+    renderGrids();
 
-.main-nav { display: flex; gap: 2rem; }
+    // Re-synchronized View Switcher
+    window.switchView = (targetId) => {
+        navBtns.forEach(btn => {
+            if (btn.getAttribute('data-target') === targetId) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
 
-.nav-btn {
-  background: none;
-  border: none;
-  font-family: var(--font-body);
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.8);
-  cursor: pointer;
-  padding: 0 0.5rem;
-  position: relative;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  display: flex;
-  align-items: center;
-  height: 100%;
-}
+        views.forEach(view => {
+            if (view.id === targetId) {
+                view.classList.remove('hidden');
+            } else {
+                view.view-section.classList.add('hidden');
+            }
+        });
 
-.nav-btn::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background-color: white;
-  transition: width 0.3s ease;
-}
+        if (targetId === 'map-view') {
+            // Recalculate dimensions across delayed intervals to clear layout paint latency
+            initMap();
+            setTimeout(() => initMap(), 50);
+            setTimeout(() => {
+                if (mapInstance) {
+                    mapInstance.invalidateSize({ animate: false });
+                    mapInstance.setView([-MAP_H / 2, MAP_W / 2], -2);
+                }
+            }, 150);
+            setTimeout(() => {
+                if (mapInstance) mapInstance.invalidateSize({ animate: false });
+            }, 400);
+        }
 
-.nav-btn:hover::after, .nav-btn.active::after { width: 100%; }
-.nav-btn:hover, .nav-btn.active { color: white; }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
-#home-view {
-  margin-top: calc(-1 * var(--header-height));
-}
+    navBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetId = btn.getAttribute('data-target');
+            switchView(targetId);
+        });
+    });
 
-/* Bright, High-Contrast Hero Layout */
-.immersive-hero {
-  height: 100vh;
-  width: 100%;
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #0077B6; 
-}
+    regionTags.forEach(tag => {
+        tag.addEventListener('click', () => {
+            regionTags.forEach(t => t.classList.remove('active'));
+            tag.classList.add('active');
+            currentRegion = tag.getAttribute('data-region');
+            filterContent();
+        });
+    });
 
-.parallax-layer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
+    categoryTags.forEach(tag => {
+        tag.addEventListener('click', () => {
+            categoryTags.forEach(t => t.classList.remove('active'));
+            tag.classList.add('active');
+            currentCategory = tag.getAttribute('data-category');
+            filterContent();
+        });
+    });
 
-.hero-map-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0.75; 
-  filter: contrast(1.05) saturate(1.1);
-}
+    function filterContent() {
+        renderDirectory();
+    }
 
-.layer-water {
-  background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.25) 100%);
-  z-index: 2;
-}
+    function getPhotoHtml(item) {
+        if (item.photo) {
+            return `<img src="${item.photo}" alt="${item.name}" class="card-img" onerror="this.onerror=null;this.style.display='none';this.insertAdjacentHTML('afterend','<div class=\\'card-img-placeholder\\'>${item.name.charAt(0)}</div>')">`;
+        }
+        return `<div class="card-img-placeholder">${item.name.charAt(0)}</div>`;
+    }
 
-.hero-overlay {
-  position: relative;
-  z-index: 10;
-  text-align: center;
-}
+    function renderDirectory() {
+        if (!directoryList) return;
+        directoryList.innerHTML = '';
+        
+        const filteredData = window.directoryData.filter(item => {
+            const regionMatch = currentRegion === 'All' || item.region === currentRegion;
+            const categoryMatch = currentCategory === 'All' || item.category === currentCategory;
+            return regionMatch && categoryMatch;
+        });
 
-.hero-content-wrapper {
-  max-width: 800px;
-  padding: 3.5rem 5rem;
-  background: rgba(27, 27, 27, 0.85); 
-  border-radius: var(--radius-lg);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: var(--shadow-lg);
-}
+        filteredData.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = 'directory-card';
+            card.setAttribute('data-id', item.id);
+            card.style.animationDelay = `${index * 0.01}s`;
+            card.innerHTML = `
+                <div class="card-image-wrapper">
+                    ${getPhotoHtml(item)}
+                </div>
+                <div class="card-info">
+                    <h4>${item.name}</h4>
+                    <p>${item.area}</p>
+                    <span class="card-category" style="background: ${categoryColors[item.category] || '#2D6A4F'}; color: white;">${item.category}</span>
+                </div>
+                <div class="card-arrow">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+            `;
+            
+            card.addEventListener('click', () => {
+                window.zoomToLocation(item.id);
+                document.querySelectorAll('.directory-card').forEach(c => c.classList.remove('highlight-active'));
+                card.classList.add('highlight-active');
+            });
 
-.hero-title-main {
-  font-size: 5rem;
-  font-weight: 700;
-  letter-spacing: 5px;
-  text-transform: uppercase;
-  color: #FFFFFF;
-  line-height: 1.1;
-  margin-bottom: 1rem;
-}
+            directoryList.appendChild(card);
+        });
+    }
 
-.hero-tagline {
-  font-size: 1.4rem;
-  letter-spacing: 2px;
-  color: var(--bg-offwhite);
-  margin-bottom: 3rem;
-  font-weight: 400;
-}
+    function renderGrids() {
+        if (!artistGrid || !attractionsGrid) return;
+        artistGrid.innerHTML = '';
+        attractionsGrid.innerHTML = '';
+        if (festivalsGrid) festivalsGrid.innerHTML = '';
 
-.btn-enter {
-  display: inline-flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1.25rem 3rem;
-  background: var(--primary-green);
-  color: white;
-  border: none;
-  border-radius: 50px;
-  font-size: 1rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-}
+        window.directoryData.forEach(item => {
+            const card = createGridCard(item);
 
-.btn-enter:hover {
-  background: var(--accent-green);
-  transform: translateY(-3px);
-}
+            if (item.category === 'Artists') {
+                artistGrid.appendChild(card);
+            } else if (['Museums', 'Galleries', 'Heritage', 'Nature', 'Cultural Sites', 'Creative Businesses', 'Workshops', 'Public Art'].includes(item.category)) {
+                const clone = createGridCard(item);
+                attractionsGrid.appendChild(clone);
+            }
+            if (item.category === 'Festivals' && festivalsGrid) {
+                const clone = createGridCard(item);
+                festivalsGrid.appendChild(clone);
+            }
+        });
+    }
 
-.scroll-indicator {
-  position: absolute;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  color: white;
-  opacity: 0.7;
-}
+    function createGridCard(item) {
+        const card = document.createElement('div');
+        card.className = 'directory-card premium-grid-card';
+        card.innerHTML = `
+            <div class="grid-card-visual">
+                ${getPhotoHtml(item)}
+                <div class="grid-card-overlay">
+                    <span class="grid-card-category">${item.category}</span>
+                </div>
+            </div>
+            <div class="card-info">
+                <h4>${item.name}</h4>
+                <p class="grid-card-location">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    ${item.area}
+                </p>
+                <p class="grid-card-desc">${item.description}</p>
+                <button class="btn-view-profile">View Profile</button>
+            </div>
+        `;
+        card.addEventListener('click', () => openModal(item));
+        return card;
+    }
 
-.scroll-indicator span {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-}
+    function openModal(item) {
+        const modalImg = document.getElementById('modal-img');
+        if (item.photo) {
+            modalImg.src = item.photo;
+            modalImg.parentElement.style.display = 'block';
+        } else {
+            modalImg.parentElement.style.display = 'none';
+        }
+        
+        document.getElementById('modal-title').textContent = item.name;
+        document.getElementById('modal-category').textContent = item.category;
+        document.getElementById('modal-region').textContent = item.region;
+        document.getElementById('modal-desc').textContent = item.description;
+        document.getElementById('modal-area').textContent = item.area;
+        document.getElementById('modal-contact').textContent = item.contact;
+        
+        const addrContainer = document.getElementById('modal-address-container');
+        if (item.address) {
+            addrContainer.style.display = 'flex';
+            document.getElementById('modal-address').textContent = item.address;
+        } else {
+            addrContainer.style.display = 'none';
+        }
 
-.mouse {
-  width: 24px;
-  height: 40px;
-  border: 2px solid white;
-  border-radius: 12px;
-  position: relative;
-}
+        modal.classList.add('active');
 
-.mouse::before {
-  content: "";
-  position: absolute;
-  top: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 4px;
-  height: 8px;
-  background: white;
-  border-radius: 2px;
-  animation: scrollMouse 2s infinite;
-}
+        document.getElementById('btn-view-on-map').onclick = () => {
+            modal.classList.remove('active');
+            switchView('map-view');
+            setTimeout(() => {
+                window.zoomToLocation(item.id);
+            }, 350);
+        };
+    }
 
-/* Heritage Section Layout */
-.heritage-preview {
-  padding: 8rem 2rem;
-  background: white;
-}
-
-.heritage-grid {
-  display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: 4rem;
-  align-items: center;
-}
-
-.heritage-text h2 {
-  font-size: 3.5rem;
-  line-height: 1.1;
-  color: var(--primary-green);
-  margin-bottom: 2rem;
-}
-
-.heritage-text p {
-  font-size: 1.2rem;
-  color: var(--text-muted);
-  margin-bottom: 3rem;
-}
-
-.download-cta-group {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.download-link {
-  display: flex;
-  flex-direction: column;
-  padding: 1.5rem;
-  border: 1px solid rgba(0,0,0,0.1);
-  border-radius: var(--radius-md);
-  text-decoration: none;
-  transition: all 0.3s ease;
-}
-
-.download-link:hover {
-  border-color: var(--primary-green);
-  background: rgba(45, 106, 79, 0.03);
-  transform: translateX(10px);
-}
-
-.download-link strong {
-  font-family: var(--font-header);
-  font-size: 1.2rem;
-  color: var(--primary-green);
-}
-
-.download-link span {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  margin-top: 0.2rem;
-}
-
-.floating-artwork {
-  width: 100%;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-}
-
-/* Horizontal Filters Panel */
-.top-filter-bar {
-  width: 100%;
-  background: #FFFFFF;
-  border-bottom: var(--border-thin);
-  padding: 1rem 3rem;
-  display: flex;
-  align-items: center;
-  gap: 4rem;
-  z-index: 50;
-  box-shadow: var(--shadow-sm);
-  flex-shrink: 0;
-}
-
-.horizontal-filter-group {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.horizontal-filter-group .filter-label {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: var(--text-dark);
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.filter-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.tag {
-  padding: 0.4rem 1.2rem;
-  background: var(--bg-offwhite);
-  border: 1px solid rgba(0,0,0,0.06);
-  border-radius: 30px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.tag:hover, .tag.active {
-  background: var(--primary-green);
-  color: #FFFFFF;
-  border-color: var(--primary-green);
-}
-
-/* Split Window Layout Architecture */
-.explore-container {
-  display: flex;
-  flex: 1;
-  height: calc(100vh - var(--header-height) - 70px); 
-  overflow: hidden;
-}
-
-.directory-side {
-  width: 420px;
-  background: #FFFFFF;
-  border-right: var(--border-thin);
-  display: flex;
-  flex-direction: column;
-  z-index: 10;
-}
-
-.directory-list {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1.5rem;
-  background: #FAFAFA;
-}
-
-.map-side {
-  flex: 1;
-  height: 100%;
-  position: relative;
-  background: #FAFAFA;
-}
-
-#map {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-}
-
-/* Sidebar Listing Cards */
-.directory-card {
-  display: flex;
-  align-items: center;
-  gap: 1.2rem;
-  padding: 1.2rem;
-  background: #FFFFFF;
-  border-radius: var(--radius-lg);
-  margin-bottom: 1rem;
-  border: 1px solid rgba(0,0,0,0.05);
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-
-.directory-card:hover, .directory-card.highlight-active {
-  transform: translateX(6px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--accent-green);
-}
-
-.directory-card.highlight-active {
-  background: rgba(82, 183, 136, 0.08) !important;
-}
-
-.card-image-wrapper {
-  width: 65px; height: 65px; min-width: 65px;
-  border-radius: 50%; overflow: hidden;
-  box-shadow: var(--shadow-sm); border: 2px solid #FFFFFF;
-}
-
-.card-image-wrapper img { width: 100%; height: 100%; object-fit: cover; }
-.card-info h4 { font-size: 1.1rem; color: var(--text-dark); margin-bottom: 0.1rem; }
-.card-info p { font-size: 0.8rem; color: var(--text-muted); }
-.card-category { display: inline-block; font-size: 0.6rem; text-transform: uppercase; padding: 0.2rem 0.8rem; border-radius: 20px; margin-top: 0.4rem; font-weight: 700; color: white; }
-.card-arrow { margin-left: auto; opacity: 0.25; }
-
-/* Grid Boards */
-.premium-grid-card { flex-direction: column; align-items: stretch; padding: 0; overflow: hidden; height: 100%; background: #FFFFFF; }
-.grid-card-visual { height: 250px; position: relative; overflow: hidden; }
-.grid-card-visual img { width: 100%; height: 100%; object-fit: cover; }
-.grid-card-overlay { position: absolute; top: 1rem; right: 1rem; }
-.grid-card-category { background: var(--primary-green); color: white; padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
-.premium-grid-card .card-info { padding: 1.5rem; }
-.grid-card-location { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.8rem; font-weight: 600; color: var(--primary-green) !important; }
-.grid-card-desc { font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; color: var(--text-muted); }
-.btn-view-profile { width: 100%; padding: 0.8rem; background: var(--bg-offwhite); border: 1px solid rgba(0,0,0,0.1); border-radius: var(--radius-md); font-weight: 700; text-transform: uppercase; cursor: pointer; }
-.premium-grid-card:hover .btn-view-profile { background: var(--primary-green); color: white; }
-
-/* Modal Windows Overlay */
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: flex; justify-content: center; align-items: center; z-index: 2000; opacity: 0; pointer-events: none; }
-.modal-overlay.active { opacity: 1; pointer-events: auto; }
-.modal-content { background: white; width: 90%; max-width: 850px; border-radius: var(--radius-lg); overflow: hidden; display: flex; position: relative; }
-.modal-visual { flex: 1; }
-.modal-visual img { width: 100%; height: 100%; object-fit: cover; }
-.modal-details { flex: 1; padding: 3rem; display: flex; flex-direction: column; }
-.close-modal { position: absolute; top: 1.5rem; right: 1.5rem; background: white; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 1.4rem; box-shadow: var(--shadow-md); z-index: 10; }
-.modal-title { font-size: 2.2rem; color: var(--primary-green); margin-bottom: 0.5rem; }
-.modal-meta { display: flex; gap: 1rem; margin-bottom: 1.5rem; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
-.modal-desc { font-size: 1rem; margin-bottom: 2rem; }
-.modal-info-item { display: flex; margin-bottom: 0.8rem; font-size: 0.9rem; }
-.modal-info-item strong { width: 90px; color: var(--primary-green); }
-.card-img-placeholder { width: 65px; height: 65px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-green), var(--accent-green)); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; color: white; }
-.btn-primary { padding: 1rem 2rem; background: var(--primary-green); color: white; border: none; font-weight: 700; border-radius: var(--radius-md); cursor: pointer; text-transform: uppercase; }
-
-.view-section { min-height: calc(100vh - var(--header-height)); display: flex; flex-direction: column; }
-.view-section.hidden { display: none !important; }
-
-@media (max-width: 1024px) {
-  .modal-content { flex-direction: column; max-height: 90vh; }
-  .modal-visual { height: 250px; }
-  .top-filter-bar { gap: 1.5rem; padding: 1rem; }
-}
-
-@media (max-width: 768px) {
-  .main-nav { display: none; }
-  .explore-container { flex-direction: column-reverse; }
-  .directory-side { width: 100%; height: 40vh; }
-}
+    closeModalBtn.addEventListener('click', () => modal.classList.remove('active'));
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('active');
+    });
+});
