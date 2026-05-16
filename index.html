@@ -33,21 +33,15 @@
                 <img src="tobago_art_map.jpg" alt="Tobago Art Map Background" class="hero-map-img">
             </div>
             <div class="parallax-layer layer-water"></div>
-            <div class="parallax-layer layer-clouds">
-                <div class="cloud cloud-1"></div>
-                <div class="cloud cloud-2"></div>
-            </div>
             
             <div class="hero-overlay">
                 <div class="hero-content-wrapper">
                     <h1 class="hero-title-main">Art Map Tobago</h1>
                     <p class="hero-tagline">A Living Interactive Cultural Atlas</p>
-                    <div class="hero-actions">
-                        <button class="btn-enter" onclick="switchView('map-view')">
-                            <span>Explore the Island</span>
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                        </button>
-                    </div>
+                    <button class="btn-enter" onclick="switchView('map-view')">
+                        <span>Explore the Island</span>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </button>
                 </div>
             </div>
             
@@ -111,14 +105,16 @@
             </div>
         </div>
 
-        <div class="explore-container">
-            <aside class="directory-side">
-                <div class="directory-list" id="directory-list"></div>
-            </aside>
+        <div id="map-wrapper-block">
+            <div id="map"></div>
+        </div>
 
-            <main class="map-side">
-                <div id="map"></div>
-            </main>
+        <div class="bottom-directory-section">
+            <div class="section-container">
+                <h3 class="directory-heading-flat">Explore Directory</h3>
+                <div class="directory-grid-flat" id="directory-list">
+                    </div>
+            </div>
         </div>
     </div>
 
