@@ -1,4 +1,4 @@
-// ── GLOBAL CONFIGURATION AND COLORS (PLACED AT THE TOP TO PREVENT CRASHES) ──
+// 1. CONFIGURATION OBJECTS MUST BE AT THE VERY TOP TO PREVENT INITIALIZATION CRASHES
 const categoryColors = {
     'Artists': '#2D6A4F',
     'Museums': '#D62828',
@@ -18,7 +18,7 @@ const MAP_W = 5325;
 const MAP_H = 3525;
 const mapBounds = [[-MAP_H, 0], [0, MAP_W]];
 
-// ── FIXED MAP INITIALIZATION FUNCTION ──
+// ── TWO-STAGE RESIZE-SAFE INITIALIZATION ENGINE ──
 function initMap() {
     if (mapInitialized) {
         if (mapInstance) mapInstance.invalidateSize({ animate: false });
@@ -28,7 +28,7 @@ function initMap() {
     const mapContainer = document.getElementById('map');
     if (!mapContainer) return;
 
-    // Safety fallback: if the map container is hidden or zero-sized, wait
+    // Safety constraint: Wait if the browser hasn't calculated dimensions yet
     if (mapContainer.clientWidth === 0 || mapContainer.clientHeight === 0) return;
 
     mapInitialized = true;
@@ -37,32 +37,36 @@ function initMap() {
         crs: L.CRS.Simple,
         minZoom: -3,
         maxZoom: 1,
-        zoomControl: false,
+        zoomControl: false, // We'll rely on double click and scroll zoom
         attributionControl: false,
         maxBounds: mapBounds,
         maxBoundsViscosity: 1.0
     });
 
-    // Clean flat path pointing directly to your root image file on GitHub
+    // Pointing directly to the root image file on your flat GitHub repository
     L.imageOverlay('tobago_art_map.jpg', mapBounds).addTo(mapInstance);
     
-    // Default initial frame: show the whole map cleanly centered
-    mapInstance.setView([-MAP_H / 2, MAP_W / 2], -2);
+    // Auto-fit your high-res map artwork neatly on screen canvas bounds
+    mapInstance.fitBounds(mapBounds);
     window.map = mapInstance;
+    
+    // Add standard default zoom control back to the bottom right area safely
+    L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
 }
 
-// ── FIXED ZOOM TO LOCATION FUNCTION ──
+// ── RELIABLE LOCATION CENTER FOCUS ENGINE ──
 window.zoomToLocation = (id) => {
     if (!mapInstance || !window.directoryData) return;
     const item = window.directoryData.find(d => d.id === id);
     if (!item) return;
 
     let target = null;
-    let zoomLevel = -0.5; // Clean, framed zoom scale close to the text labels
+    let zoomLevel = -0.5; // Comfortable, crisp close-up zoom frame context
 
     if (item.dot) {
+        // Data structure format is [Horizontal X, Vertical Y]
         const [x, y] = item.dot;
-        target = [-y, x];
+        target = [-y, x]; // LatLng conversion maps to [-Y, X] in Simple CRS space bounds
     } else if (item.box) {
         const [bx, by, bw, bh] = item.box;
         const cx = bx + (bw / 2);
@@ -75,21 +79,8 @@ window.zoomToLocation = (id) => {
     }
 };
 
-// ── MANUAL CONTROL BAR BUTTON ACTIONS ──
-window.manualZoomIn = () => {
-    if (mapInstance) mapInstance.zoomIn(0.5);
-};
 
-window.manualZoomOut = () => {
-    if (mapInstance) mapInstance.zoomOut(0.5);
-};
-
-window.resetMapFrame = () => {
-    if (mapInstance) mapInstance.setView([-MAP_H / 2, MAP_W / 2], -2);
-};
-
-
-// ── CORE CONTROLLER LAYER ──
+// ── CORE APPLICATION DISPLAY LAYER CONTROLLER ──
 document.addEventListener('DOMContentLoaded', () => {
     const navBtns = document.querySelectorAll('.nav-btn');
     const views = document.querySelectorAll('.view-section');
@@ -105,11 +96,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentRegion = 'All';
     let currentCategory = 'All';
 
-    // Render list contents immediately on start
+    // Build standalone structural lists instantly
     renderDirectory();
     renderGrids();
 
-    // Re-synchronized View Switcher
     window.switchView = (targetId) => {
         navBtns.forEach(btn => {
             if (btn.getAttribute('data-target') === targetId) {
@@ -128,17 +118,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (targetId === 'map-view') {
-            // Force rendering intervals to ensure Leaflet captures layout geometry perfectly
+            // Trigger layout recalculation loop intervals to resolve sizing lag completely
             initMap();
             setTimeout(() => {
                 initMap();
             }, 50);
             setTimeout(() => {
-                if (mapInstance) mapInstance.invalidateSize({ animate: false });
+                if (mapInstance) {
+                    mapInstance.invalidateSize({ animate: false });
+                    mapInstance.fitBounds(mapBounds);
+                }
             }, 150);
             setTimeout(() => {
                 if (mapInstance) mapInstance.invalidateSize({ animate: false });
-            }, 400);
+            }, 450);
         }
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
