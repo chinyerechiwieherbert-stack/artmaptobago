@@ -1,4 +1,4 @@
-// Global Asset Category Colors
+// Global Configuration Objects
 const categoryColors = {
     'Artists': '#2D6A4F',
     'Museums': '#D62828',
@@ -18,22 +18,18 @@ const MAP_W = 5325;
 const MAP_H = 3525;
 const mapBounds = [[-MAP_H, 0], [0, MAP_W]];
 
-// ── ROBUST RESIZE-SAFE INITIALIZATION ENGINE ──
+// ── FIXED MAP INITIALIZATION FUNCTION ──
 function initMap() {
+    if (mapInitialized) {
+        if (mapInstance) mapInstance.invalidateSize({ animate: false });
+        return;
+    }
+
     const mapContainer = document.getElementById('map');
     if (!mapContainer) return;
 
-    // PROTECTION LINK: If container layout doesn't hold physical dimensions yet, halt
-    if (mapContainer.clientWidth === 0 || mapContainer.clientHeight === 0) {
-        return;
-    }
-
-    if (mapInitialized) {
-        if (mapInstance) {
-            mapInstance.invalidateSize({ animate: false });
-        }
-        return;
-    }
+    // Safety fallback: if the map element hasn't computed sizes yet under CSS rules, wait
+    if (mapContainer.clientWidth === 0 || mapContainer.clientHeight === 0) return;
 
     mapInitialized = true;
 
@@ -47,33 +43,56 @@ function initMap() {
         maxBoundsViscosity: 1.0
     });
 
-    // Loading flat root image directly from your master repository layer
+    // Clean flat path pointing directly to your root image file on GitHub
     L.imageOverlay('tobago_art_map.jpg', mapBounds).addTo(mapInstance);
     
-    // Position map flat canvas overview directly centered on the screen box frame layout
+    // Default initial frame: show the whole map cleanly centered
     mapInstance.setView([-MAP_H / 2, MAP_W / 2], -2);
     window.map = mapInstance;
+
+    // Standard native zoom keys mapped smoothly to the bottom right corner
+    L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
 }
 
-// ── POINT RE-CENTER ZOOM ENGINE ──
+// ── FIXED RESTORED ZOOM TO LOCATION FUNCTION ──
 window.zoomToLocation = (id) => {
     if (!mapInstance || !window.directoryData) return;
     const item = window.directoryData.find(d => d.id === id);
-    if (!item || !item.dot) return;
+    if (!item) return;
 
-    // Horizontal coordinate is array index 0, vertical is array index 1
-    const targetX = item.dot[0];
-    const targetY = item.dot[1];
+    let target = null;
+    let zoomLevel = -0.5; // Framed zoom scale comfort level depth
 
-    // Map inverted coordinates right inside negative Leaflet CRS.Simple grid lines
-    const centerPoint = [-targetY, targetX];
-    
-    // Zoom -0.5 brings the frame directly into tight focus over the artist's typographic text entry
-    mapInstance.setView(centerPoint, -0.5);
+    if (item.dot) {
+        const [x, y] = item.dot;
+        target = [-y, x];
+    } else if (item.box) {
+        const [bx, by, bw, bh] = item.box;
+        const cx = bx + (bw / 2);
+        const cy = by + (bh / 2);
+        target = [-cy, cx];
+    }
+
+    if (target) {
+        mapInstance.setView(target, zoomLevel);
+    }
+};
+
+// ── HEADER FILTER CONTROLS BAR MANUAL ACTIONS ──
+window.manualZoomIn = () => {
+    if (mapInstance) mapInstance.zoomIn(0.5);
+};
+
+window.manualZoomOut = () => {
+    if (mapInstance) mapInstance.zoomOut(0.5);
+};
+
+window.resetMapFrame = () => {
+    if (mapInstance) mapInstance.setView([-MAP_H / 2, MAP_W / 2], -2);
 };
 
 
-// ── APPLICATION USER CONTEXT CONTROLLER LAYER ──
+// ── CORE CONTROLLER LAYER ──
 document.addEventListener('DOMContentLoaded', () => {
     const navBtns = document.querySelectorAll('.nav-btn');
     const views = document.querySelectorAll('.view-section');
@@ -89,10 +108,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentRegion = 'All';
     let currentCategory = 'All';
 
-    // Build standalone displays and components seamlessly
+    // Render list contents immediately on start
     renderDirectory();
     renderGrids();
 
+    // Re-synchronized View Switcher
     window.switchView = (targetId) => {
         navBtns.forEach(btn => {
             if (btn.getAttribute('data-target') === targetId) {
@@ -111,18 +131,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (targetId === 'map-view') {
-            // Sequence block intervals to force rendering parameters once container is active
+            // Force rendering intervals to safeguard Leaflet against layout sizing latency
             initMap();
-            setTimeout(() => initMap(), 50);
             setTimeout(() => {
-                if (mapInstance) {
-                    mapInstance.invalidateSize({ animate: false });
-                    mapInstance.setView([-MAP_H / 2, MAP_W / 2], -2);
-                }
+                initMap();
+            }, 50);
+            setTimeout(() => {
+                if (mapInstance) mapInstance.invalidateSize({ animate: false });
             }, 150);
             setTimeout(() => {
                 if (mapInstance) mapInstance.invalidateSize({ animate: false });
-            }, 450);
+            }, 400);
         }
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
