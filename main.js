@@ -1,98 +1,3 @@
-// Global Configuration Object
-const categoryColors = {
-    'Artists': '#2D6A4F',
-    'Museums': '#D62828',
-    'Galleries': '#D62828',
-    'Heritage': '#D62828',
-    'Nature': '#0077B6',
-    'Cultural Sites': '#E0A96D',
-    'Creative Businesses': '#2D6A4F',
-    'Workshops': '#2D6A4F',
-    'Festivals': '#E0A96D',
-    'Public Art': '#2D6A4F'
-};
-
-let mapInstance = null;
-const MAP_W = 5325;
-const MAP_H = 3525;
-const mapBounds = [[-MAP_H, 0], [0, MAP_W]];
-
-// ── SAFE VIEW-ACTIVATED MAP ENGINE ──
-function initMap() {
-    // If the map is already built, just refresh its dimensions and exit
-    if (mapInstance) {
-        mapInstance.invalidateSize();
-        return;
-    }
-    
-    const mapContainer = document.getElementById('map');
-    if (!mapContainer) return;
-
-    // PROTECTION FALLBACK: If the element is still zero-width/hidden, don't build yet
-    if (mapContainer.clientWidth === 0 || mapContainer.clientHeight === 0) {
-        return;
-    }
-
-    // Build the Leaflet flat mapping coordinates framework
-    mapInstance = L.map('map', {
-        crs: L.CRS.Simple,
-        minZoom: -3,
-        maxZoom: 1,
-        zoomControl: false,
-        attributionControl: false,
-        maxBounds: mapBounds,
-        maxBoundsViscosity: 1.0
-    });
-
-    L.imageOverlay('tobago_art_map.jpg', mapBounds).addTo(mapInstance);
-    
-    // Center the entire map overview cleanly on screen layout
-    mapInstance.fitBounds(mapBounds);
-    window.map = mapInstance;
-}
-
-// ── MANUAL TOP BAR CONTROL ACTION INTERFACES ──
-window.manualZoomIn = () => {
-    if (mapInstance) mapInstance.zoomIn(0.5);
-};
-
-window.manualZoomOut = () => {
-    if (mapInstance) mapInstance.zoomOut(0.5);
-};
-
-window.resetMapFrame = () => {
-    if (mapInstance) {
-        mapInstance.fitBounds(mapBounds);
-    }
-};
-
-// Precise Point Mapping Focus Engine
-window.zoomToLocation = (id) => {
-    if (!mapInstance || !window.directoryData) return;
-    const item = window.directoryData.find(d => d.id === id);
-    if (!item) return;
-
-    let targetX = 0;
-    let targetY = 0;
-
-    if (item.dot) {
-        targetX = item.dot[0];
-        targetY = item.dot[1];
-    } else if (item.box) {
-        targetX = item.box[0] + (item.box[2] / 2);
-        targetY = item.box[1] + (item.box[3] / 2);
-    } else {
-        return; 
-    }
-
-    const centerPoint = [-targetY, targetX];
-    
-    // Zoom instantly to clear crisp view focus level (-0.5)
-    mapInstance.setView(centerPoint, -0.5);
-};
-
-
-// ── CORE INTERFACE APP CONTROLLER LAYER ──
 document.addEventListener('DOMContentLoaded', () => {
     const navBtns = document.querySelectorAll('.nav-btn');
     const views = document.querySelectorAll('.view-section');
@@ -108,10 +13,81 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentRegion = 'All';
     let currentCategory = 'All';
 
-    // Populate directory data cards instantly into backend rendering queue loop
-    renderDirectory();
-    renderGrids();
+    // ── RESTORED LOCAL MAP INITIALIZATION ENGINE ──
+    let mapInstance;
+    let mapInitialized = false;
 
+    function initMap() {
+        if (mapInitialized) {
+            if (mapInstance) mapInstance.invalidateSize({ animate: false });
+            return;
+        }
+
+        const mapContainer = document.getElementById('map');
+        if (!mapContainer || mapContainer.clientWidth === 0) return;
+
+        mapInitialized = true;
+        const w = 5325;
+        const h = 3525;
+        const bounds = [[-h, 0], [0, w]];
+
+        mapInstance = L.map('map', {
+            crs: L.CRS.Simple,
+            minZoom: -3,
+            maxZoom: 1,
+            zoomControl: false,
+            attributionControl: false,
+            maxBounds: bounds,
+            maxBoundsViscosity: 1.0
+        });
+
+        // FIXED PATH: Pulled directly from your flat root repository instead of assets/
+        L.imageOverlay('tobago_art_map.jpg', bounds).addTo(mapInstance);
+        
+        mapInstance.fitBounds(bounds);
+        window.map = mapInstance;
+    }
+
+    // ── MANUAL ZOOM CONTROLS FOR THE FILTER BAR ──
+    window.manualZoomIn = () => {
+        if (mapInstance) mapInstance.zoomIn(0.5);
+    };
+
+    window.manualZoomOut = () => {
+        if (mapInstance) mapInstance.zoomOut(0.5);
+    };
+
+    window.resetMapFrame = () => {
+        if (mapInstance) {
+            const bounds = [[-3525, 0], [0, 5325]];
+            mapInstance.fitBounds(bounds);
+        }
+    };
+
+    // ── LOCAL ZOOM TO LOCATION GEOMETRY ──
+    window.zoomToLocation = (id) => {
+        const item = window.directoryData.find(d => d.id === id);
+        if (!item || !mapInstance) return;
+
+        let target;
+        let zoomLevel = -0.5; // Perfectly framed zoom comfort depth
+
+        if (item.dot) {
+            const [x, y] = item.dot;
+            target = [-y, x];
+        } else if (item.box) {
+            const [bx, by, bw, bh] = item.box;
+            const cx = bx + (bw / 2);
+            const cy = by + (bh / 2);
+            target = [-cy, cx];
+        }
+
+        if (target) {
+            mapInstance.setView(target, zoomLevel);
+        }
+    };
+
+    // ── LOCAL SWITCH VIEW METHOD ──
     window.switchView = (targetId) => {
         navBtns.forEach(btn => {
             if (btn.getAttribute('data-target') === targetId) {
@@ -129,21 +105,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Initialize Map ONLY when container view finishes unhiding completely
         if (targetId === 'map-view') {
+            initMap();
             setTimeout(() => {
                 initMap();
+                if (mapInstance) mapInstance.invalidateSize({ animate: false });
             }, 50);
-            
-            // Layout dimension recalculation intervals to safeguard against flexbox/grid layout delays
             setTimeout(() => {
-                if (mapInstance) mapInstance.invalidateSize();
-            }, 150);
-            
-            setTimeout(() => {
-                if (mapInstance) mapInstance.invalidateSize();
-            }, 400);
+                if (mapInstance) mapInstance.invalidateSize({ animate: false });
+            }, 300);
         }
+
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -154,6 +126,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Initialize Front-End Grid Blocks
+    renderDirectory();
+    renderGrids();
+
+    // Filtering Tags Event Bindings
     regionTags.forEach(tag => {
         tag.addEventListener('click', () => {
             regionTags.forEach(t => t.classList.remove('active'));
@@ -223,21 +200,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderGrids() {
-        if (artistGrid) artistGrid.innerHTML = '';
-        if (attractionsGrid) attractionsGrid.innerHTML = '';
+        if (!artistGrid || !attractionsGrid) return;
+        artistGrid.innerHTML = '';
+        attractionsGrid.innerHTML = '';
         if (festivalsGrid) festivalsGrid.innerHTML = '';
-
-        if (!window.directoryData) return;
 
         window.directoryData.forEach(item => {
             const card = createGridCard(item);
 
-            if (item.category === 'Artists' && artistGrid) {
+            if (item.category === 'Artists') {
                 artistGrid.appendChild(card);
-            } else if (['Museums', 'Galleries', 'Heritage', 'Nature', 'Cultural Sites', 'Creative Businesses', 'Workshops', 'Public Art'].includes(item.category) && attractionsGrid) {
+            } else if (['Museums', 'Galleries', 'Heritage', 'Nature', 'Cultural Sites', 'Creative Businesses', 'Workshops', 'Public Art'].includes(item.category)) {
                 const clone = createGridCard(item);
                 attractionsGrid.appendChild(clone);
-            } else if (item.category === 'Festivals' && festivalsGrid) {
+            }
+            if (item.category === 'Festivals' && festivalsGrid) {
                 const clone = createGridCard(item);
                 festivalsGrid.appendChild(clone);
             }
@@ -297,17 +274,32 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('btn-view-on-map').onclick = () => {
             modal.classList.remove('active');
             switchView('map-view');
-            setTimeout(() => window.zoomToLocation(item.id), 350);
+            setTimeout(() => {
+                window.zoomToLocation(item.id);
+            }, 350);
         };
     }
+
+    window.highlightInDirectory = (id, scroll = true) => {
+        const targetCard = document.querySelector(`.directory-card[data-id="${id}"]`);
+        if (targetCard) {
+            if (scroll) targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            targetCard.classList.add('highlight-active');
+        }
+    };
+
+    window.unhighlightInDirectory = (id) => {
+        const targetCard = document.querySelector(`.directory-card[data-id="${id}"]`);
+        if (targetCard) targetCard.classList.remove('highlight-active');
+    };
 
     window.showProfile = (id) => {
         const item = window.directoryData.find(d => d.id === id);
         if (item) openModal(item);
     };
 
-    if (closeModalBtn) closeModalBtn.addEventListener('click', () => modal.classList.remove('active'));
-    if (modal) modal.addEventListener('click', (e) => {
+    closeModalBtn.addEventListener('click', () => modal.classList.remove('active'));
+    modal.addEventListener('click', (e) => {
         if (e.target === modal) modal.classList.remove('active');
     });
 });
