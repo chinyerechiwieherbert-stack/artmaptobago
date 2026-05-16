@@ -1,4 +1,3 @@
-// Global Configuration Object
 const categoryColors = {
     'Artists': '#2D6A4F',
     'Museums': '#D62828',
@@ -15,7 +14,7 @@ const categoryColors = {
 let mapInstance;
 let mapInitialized = false;
 
-// ── CLEAN MAP ZOOM ENGINE (NO OVERLAYS) ──
+// ── EXTRACTED MAP CANVAS ENGINE ──
 function initMap() {
     if (mapInitialized) return;
     
@@ -37,7 +36,6 @@ function initMap() {
         maxBoundsViscosity: 1.0
     });
 
-    // Load base artwork directly from repository root
     L.imageOverlay('tobago_art_map.jpg', bounds).addTo(mapInstance);
     mapInstance.fitBounds(bounds);
     window.map = mapInstance;
@@ -45,27 +43,38 @@ function initMap() {
     L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
 }
 
-// Fixed Dynamic Position Vector Locator
+// PREMIUM POSITION SCALAR ZOOM ENGINE CORRECTION
 window.zoomToLocation = (id) => {
     if (!mapInstance || !window.directoryData) return;
     const item = window.directoryData.find(d => d.id === id);
-    if (!item || !item.dot) return;
+    if (!item) return;
 
-    // Read the coordinate entries directly from data vectors
-    const [x, y] = item.dot;
+    let targetX = 0;
+    let targetY = 0;
+
+    // Translate coordinates dynamically based on available data profiles
+    if (item.dot) {
+        targetX = item.dot[0];
+        targetY = item.dot[1];
+    } else if (item.box) {
+        targetX = item.box[0] + (item.box[2] / 2);
+        targetY = item.box[1] + (item.box[3] / 2);
+    } else {
+        return; // Break if no positioning vectors exist
+    }
+
+    // Invert the vertical layout vector to pin perfectly inside negative Leaflet space boundaries
+    const accurateMapLatLng = [-targetY, targetX];
     
-    // Invert the y-axis to match Leaflet CRS.Simple space constraints perfectly
-    const targetCoordinate = [-y, x];
-    
-    // Fly smoothly directly onto the item's precise layout spot
-    mapInstance.flyTo(targetCoordinate, 0.5, {
+    // Trigger smooth panning to geographic area anchor point
+    mapInstance.flyTo(accurateMapLatLng, 0, {
         duration: 1.2,
-        easeLinearity: 0.25
+        easeLinearity: 0.2
     });
 };
 
 
-// ── INTERFACE & DIRECTORY CONTROLLER LAYER ──
+// ── FRONTEND DISPLAY LOGIC ENGINE ──
 document.addEventListener('DOMContentLoaded', () => {
     const navBtns = document.querySelectorAll('.nav-btn');
     const views = document.querySelectorAll('.view-section');
@@ -81,7 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentRegion = 'All';
     let currentCategory = 'All';
 
-    // Wake up base map layout
     initMap();
     setTimeout(() => { initMap(); }, 200);
 
@@ -171,18 +179,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="card-info">
                     <h4>${item.name}</h4>
                     <p>${item.area}</p>
-                    <span class="card-category" style="background: ${categoryColors[item.category] || '#2D6A4F'}; color: white;">${item.category}</span>
+                    <span class="card-category" style="background: ${categoryColors[item.category] || '#2D6A4F'}">${item.category}</span>
                 </div>
                 <div class="card-arrow">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                 </div>
             `;
             
-            // Fires pinpoint tracking zoom instantly when sidebar card is clicked
             card.addEventListener('click', () => {
                 window.zoomToLocation(item.id);
-                
-                // Visually mark active sidebar selection state
                 document.querySelectorAll('.directory-card').forEach(c => c.classList.remove('highlight-active'));
                 card.classList.add('highlight-active');
             });
@@ -269,6 +274,19 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => window.zoomToLocation(item.id), 350);
         };
     }
+
+    window.highlightInDirectory = (id, scroll = true) => {
+        const targetCard = document.querySelector(`.directory-card[data-id="${id}"]`);
+        if (targetCard) {
+            if (scroll) targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            targetCard.classList.add('highlight-active');
+        }
+    };
+
+    window.unhighlightInDirectory = (id) => {
+        const targetCard = document.querySelector(`.directory-card[data-id="${id}"]`);
+        if (targetCard) targetCard.classList.remove('highlight-active');
+    };
 
     window.showProfile = (id) => {
         const item = window.directoryData.find(d => d.id === id);
