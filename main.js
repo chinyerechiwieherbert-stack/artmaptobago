@@ -41,6 +41,7 @@ function initMap() {
     L.imageOverlay('tobago_art_map.jpg', mapBounds).addTo(mapInstance);
     mapInstance.setView([-MAP_H / 2, MAP_W / 2], -2);
     window.map = mapInstance;
+
     L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
 }
 
@@ -48,6 +49,8 @@ window.zoomToLocation = (id) => {
     if (!mapInstance || !window.directoryData) return;
     const item = window.directoryData.find(d => d.id === id);
     if (!item || !item.dot) return;
+    
+    // Zoom directly onto the text node
     mapInstance.setView([-item.dot[1], item.dot[0]], -0.5);
 };
 
@@ -60,11 +63,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const festivalsGrid = document.getElementById('festivals-grid');
     const regionTags = document.querySelectorAll('#region-filters .tag');
     const categoryTags = document.querySelectorAll('#category-filters .tag');
+    const modal = document.getElementById('profile-modal');
+    const closeModalBtn = document.querySelector('.close-modal');
+    
+    let currentRegion = 'All';
+    let currentCategory = 'All';
 
     renderDirectory();
     renderGrids();
 
     window.switchView = (targetId) => {
+        // Toggle the active state on the navigation menu
         navBtns.forEach(btn => {
             if (btn.getAttribute('data-target') === targetId) {
                 btn.classList.add('active');
@@ -73,6 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        // Hide all views, reveal only the target view
         views.forEach(view => {
             if (view.id === targetId) {
                 view.classList.remove('hidden');
@@ -90,13 +100,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     mapInstance.setView([-MAP_H / 2, MAP_W / 2], -2);
                 }
             }, 150);
+            setTimeout(() => {
+                if (mapInstance) mapInstance.invalidateSize({ animate: false });
+            }, 450);
         }
+
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     navBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            window.switchView(btn.getAttribute('data-target'));
+            switchView(btn.getAttribute('data-target'));
         });
     });
 
@@ -104,7 +118,8 @@ document.addEventListener('DOMContentLoaded', () => {
         tag.addEventListener('click', () => {
             regionTags.forEach(t => t.classList.remove('active'));
             tag.classList.add('active');
-            renderDirectory();
+            currentRegion = tag.getAttribute('data-region');
+            filterContent();
         });
     });
 
@@ -112,9 +127,14 @@ document.addEventListener('DOMContentLoaded', () => {
         tag.addEventListener('click', () => {
             categoryTags.forEach(t => t.classList.remove('active'));
             tag.classList.add('active');
-            renderDirectory();
+            currentCategory = tag.getAttribute('data-category');
+            filterContent();
         });
     });
+
+    function filterContent() {
+        renderDirectory();
+    }
 
     function getPhotoHtml(item) {
         if (item.photo) {
@@ -127,29 +147,35 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!directoryList) return;
         directoryList.innerHTML = '';
         
-        const activeRegion = document.querySelector('#region-filters .tag.active')?.getAttribute('data-region') || 'All';
-        const activeCategory = document.querySelector('#category-filters .tag.active')?.getAttribute('data-category') || 'All';
-
         const filteredData = window.directoryData.filter(item => {
-            const regionMatch = activeRegion === 'All' || item.region === activeRegion;
-            const categoryMatch = activeCategory === 'All' || item.category === activeCategory;
+            const regionMatch = currentRegion === 'All' || item.region === currentRegion;
+            const categoryMatch = currentCategory === 'All' || item.category === currentCategory;
             return regionMatch && categoryMatch;
         });
 
-        filteredData.forEach(item => {
+        filteredData.forEach((item, index) => {
             const card = document.createElement('div');
             card.className = 'directory-card';
+            card.setAttribute('data-id', item.id);
+            card.style.animationDelay = `${index * 0.01}s`;
             card.innerHTML = `
                 <div class="card-image-wrapper">${getPhotoHtml(item)}</div>
                 <div class="card-info">
                     <h4>${item.name}</h4>
                     <p>${item.area}</p>
-                    <span class="card-category" style="background: ${categoryColors[item.category] || '#2D6A4F'};">${item.category}</span>
+                    <span class="card-category" style="background: ${categoryColors[item.category] || '#2D6A4F'}; color: white;">${item.category}</span>
+                </div>
+                <div class="card-arrow">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                 </div>
             `;
+            
             card.addEventListener('click', () => {
                 window.zoomToLocation(item.id);
+                document.querySelectorAll('.directory-card').forEach(c => c.classList.remove('highlight-active'));
+                card.classList.add('highlight-active');
             });
+
             directoryList.appendChild(card);
         });
     }
@@ -161,23 +187,82 @@ document.addEventListener('DOMContentLoaded', () => {
         if (festivalsGrid) festivalsGrid.innerHTML = '';
 
         window.directoryData.forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'directory-card premium-grid-card';
-            card.innerHTML = `
-                <div class="grid-card-visual">${getPhotoHtml(item)}</div>
-                <div class="card-info">
-                    <h4>${item.name}</h4>
-                    <p class="grid-card-location">${item.area}</p>
-                    <p class="grid-card-desc">${item.description}</p>
-                </div>
-            `;
+            const card = createGridCard(item);
+
             if (item.category === 'Artists') {
                 artistGrid.appendChild(card);
-            } else if (item.category === 'Festivals' && festivalsGrid) {
-                festivalsGrid.appendChild(card);
-            } else {
-                attractionsGrid.appendChild(card);
+            } else if (['Museums', 'Galleries', 'Heritage', 'Nature', 'Cultural Sites', 'Creative Businesses', 'Workshops', 'Public Art'].includes(item.category)) {
+                const clone = createGridCard(item);
+                attractionsGrid.appendChild(clone);
+            }
+            if (item.category === 'Festivals' && festivalsGrid) {
+                const clone = createGridCard(item);
+                festivalsGrid.appendChild(clone);
             }
         });
     }
+
+    function createGridCard(item) {
+        const card = document.createElement('div');
+        card.className = 'directory-card premium-grid-card';
+        card.innerHTML = `
+            <div class="grid-card-visual">
+                ${getPhotoHtml(item)}
+                <div class="grid-card-overlay">
+                    <span class="grid-card-category">${item.category}</span>
+                </div>
+            </div>
+            <div class="card-info">
+                <h4>${item.name}</h4>
+                <p class="grid-card-location">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    ${item.area}
+                </p>
+                <p class="grid-card-desc">${item.description}</p>
+                <button class="btn-view-profile">View Profile</button>
+            </div>
+        `;
+        card.addEventListener('click', () => openModal(item));
+        return card;
+    }
+
+    function openModal(item) {
+        const modalImg = document.getElementById('modal-img');
+        if (item.photo) {
+            modalImg.src = item.photo;
+            modalImg.parentElement.style.display = 'block';
+        } else {
+            modalImg.parentElement.style.display = 'none';
+        }
+        
+        document.getElementById('modal-title').textContent = item.name;
+        document.getElementById('modal-category').textContent = item.category;
+        document.getElementById('modal-region').textContent = item.region;
+        document.getElementById('modal-desc').textContent = item.description;
+        document.getElementById('modal-area').textContent = item.area;
+        document.getElementById('modal-contact').textContent = item.contact;
+        
+        const addrContainer = document.getElementById('modal-address-container');
+        if (item.address) {
+            addrContainer.style.display = 'flex';
+            document.getElementById('modal-address').textContent = item.address;
+        } else {
+            addrContainer.style.display = 'none';
+        }
+
+        modal.classList.add('active');
+
+        document.getElementById('btn-view-on-map').onclick = () => {
+            modal.classList.remove('active');
+            switchView('map-view');
+            setTimeout(() => {
+                window.zoomToLocation(item.id);
+            }, 350);
+        };
+    }
+
+    if (closeModalBtn) closeModalBtn.addEventListener('click', () => modal.classList.remove('active'));
+    if (modal) modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('active');
+    });
 });
