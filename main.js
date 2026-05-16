@@ -54,7 +54,7 @@ window.zoomToLocation = (id) => {
     if (!item) return;
 
     let target = null;
-    let zoomLevel = -1.2; 
+    let zoomLevel = -0.5;
 
     if (item.box) {
         const [bx, by, bw, bh] = item.box;
@@ -74,62 +74,18 @@ window.zoomToLocation = (id) => {
     if (mapSection && !mapSection.classList.contains('hidden')) {
         const offset = 80; 
         const elementPosition = mapSection.getBoundingClientRect().top + window.scrollY;
-        window.scrollTo({ top: elementPosition - offset, behavior: 'smooth' });
+        window.scrollTo({
+            top: elementPosition - offset,
+            behavior: 'smooth'
+        });
     }
 };
 
-// ── 4. BULLETPROOF TAB SWITCHER ──
-// Placed globally so it never gets blocked by data loading errors
-window.switchView = (targetId) => {
+
+// ── 4. MULTI-TAB CONTROLLER AND FILTER SYSTEM ──
+document.addEventListener('DOMContentLoaded', () => {
     const navBtns = document.querySelectorAll('.nav-btn');
     const views = document.querySelectorAll('.view-section');
-
-    navBtns.forEach(btn => {
-        if (btn.getAttribute('data-target') === targetId) {
-            btn.classList.add('active');
-        } else {
-            btn.classList.remove('active');
-        }
-    });
-
-    views.forEach(view => {
-        if (view.id === targetId) {
-            view.classList.remove('hidden');
-        } else {
-            view.classList.add('hidden');
-        }
-    });
-
-    if (targetId === 'map-view') {
-        setTimeout(() => {
-            initMap();
-            if (mapInstance) {
-                mapInstance.invalidateSize({ animate: false });
-                mapInstance.setView([-MAP_H / 2, MAP_W / 2], -2);
-            }
-        }, 100);
-        
-        setTimeout(() => {
-            if (mapInstance) mapInstance.invalidateSize({ animate: false });
-        }, 400);
-    }
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-};
-
-// ── 5. APPLICATION DATA & EVENTS ──
-document.addEventListener('DOMContentLoaded', () => {
-    
-    // 1. Immediately attach navigation buttons so they ALWAYS work
-    const navBtns = document.querySelectorAll('.nav-btn');
-    navBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault(); 
-            window.switchView(btn.getAttribute('data-target'));
-        });
-    });
-
-    // 2. Safely build the data sections
     const directoryList = document.getElementById('directory-list');
     const artistGrid = document.getElementById('artist-grid');
     const attractionsGrid = document.getElementById('attractions-grid');
@@ -142,6 +98,72 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentRegion = 'All';
     let currentCategory = 'All';
 
+    renderDirectory();
+    renderGrids();
+
+    window.switchView = (targetId) => {
+        navBtns.forEach(btn => {
+            if (btn.getAttribute('data-target') === targetId) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        views.forEach(view => {
+            if (view.id === targetId) {
+                view.classList.remove('hidden');
+            } else {
+                view.classList.add('hidden');
+            }
+        });
+
+        if (targetId === 'map-view') {
+            setTimeout(() => {
+                initMap();
+                if (mapInstance) {
+                    mapInstance.invalidateSize({ animate: false });
+                    mapInstance.setView([-MAP_H / 2, MAP_W / 2], -2);
+                }
+            }, 100);
+            
+            setTimeout(() => {
+                if (mapInstance) mapInstance.invalidateSize({ animate: false });
+            }, 400);
+        }
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    navBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetId = btn.getAttribute('data-target');
+            switchView(targetId);
+        });
+    });
+
+    regionTags.forEach(tag => {
+        tag.addEventListener('click', () => {
+            regionTags.forEach(t => t.classList.remove('active'));
+            tag.classList.add('active');
+            currentRegion = tag.getAttribute('data-region');
+            filterContent();
+        });
+    });
+
+    categoryTags.forEach(tag => {
+        tag.addEventListener('click', () => {
+            categoryTags.forEach(t => t.classList.remove('active'));
+            tag.classList.add('active');
+            currentCategory = tag.getAttribute('data-category');
+            filterContent();
+        });
+    });
+
+    function filterContent() {
+        renderDirectory();
+    }
+
     function getPhotoHtml(item) {
         if (item.photo) {
             return `<img src="${item.photo}" alt="${item.name}" class="card-img" onerror="this.onerror=null;this.style.display='none';this.insertAdjacentHTML('afterend','<div class=\\'card-img-placeholder\\'>${item.name.charAt(0)}</div>')">`;
@@ -150,7 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderDirectory() {
-        if (!directoryList || !window.directoryData) return;
+        if (!directoryList) return;
         directoryList.innerHTML = '';
         
         const filteredData = window.directoryData.filter(item => {
@@ -165,7 +187,9 @@ document.addEventListener('DOMContentLoaded', () => {
             card.setAttribute('data-id', item.id);
             card.style.animationDelay = `${index * 0.01}s`;
             card.innerHTML = `
-                <div class="card-image-wrapper">${getPhotoHtml(item)}</div>
+                <div class="card-image-wrapper">
+                    ${getPhotoHtml(item)}
+                </div>
                 <div class="card-info">
                     <h4>${item.name}</h4>
                     <p>${item.area}</p>
@@ -184,3 +208,91 @@ document.addEventListener('DOMContentLoaded', () => {
 
             directoryList.appendChild(card);
         });
+    }
+
+    function renderGrids() {
+        if (!artistGrid || !attractionsGrid) return;
+        artistGrid.innerHTML = '';
+        attractionsGrid.innerHTML = '';
+        if (festivalsGrid) festivalsGrid.innerHTML = '';
+
+        window.directoryData.forEach(item => {
+            const card = createGridCard(item);
+
+            if (item.category === 'Artists') {
+                artistGrid.appendChild(card);
+            } else if (['Museums', 'Galleries', 'Heritage', 'Nature', 'Cultural Sites', 'Creative Businesses', 'Workshops', 'Public Art'].includes(item.category)) {
+                const clone = createGridCard(item);
+                attractionsGrid.appendChild(clone);
+            }
+            if (item.category === 'Festivals' && festivalsGrid) {
+                const clone = createGridCard(item);
+                festivalsGrid.appendChild(clone);
+            }
+        });
+    }
+
+    function createGridCard(item) {
+        const card = document.createElement('div');
+        card.className = 'directory-card premium-grid-card';
+        card.innerHTML = `
+            <div class="grid-card-visual">
+                ${getPhotoHtml(item)}
+                <div class="grid-card-overlay">
+                    <span class="grid-card-category">${item.category}</span>
+                </div>
+            </div>
+            <div class="card-info">
+                <h4>${item.name}</h4>
+                <p class="grid-card-location">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    ${item.area}
+                </p>
+                <p class="grid-card-desc">${item.description}</p>
+                <button class="btn-view-profile">View Profile</button>
+            </div>
+        `;
+        card.addEventListener('click', () => openModal(item));
+        return card;
+    }
+
+    function openModal(item) {
+        const modalImg = document.getElementById('modal-img');
+        if (item.photo) {
+            modalImg.src = item.photo;
+            modalImg.parentElement.style.display = 'block';
+        } else {
+            modalImg.parentElement.style.display = 'none';
+        }
+        
+        document.getElementById('modal-title').textContent = item.name;
+        document.getElementById('modal-category').textContent = item.category;
+        document.getElementById('modal-region').textContent = item.region;
+        document.getElementById('modal-desc').textContent = item.description;
+        document.getElementById('modal-area').textContent = item.area;
+        document.getElementById('modal-contact').textContent = item.contact;
+        
+        const addrContainer = document.getElementById('modal-address-container');
+        if (item.address) {
+            addrContainer.style.display = 'flex';
+            document.getElementById('modal-address').textContent = item.address;
+        } else {
+            addrContainer.style.display = 'none';
+        }
+
+        modal.classList.add('active');
+
+        document.getElementById('btn-view-on-map').onclick = () => {
+            modal.classList.remove('active');
+            switchView('map-view');
+            setTimeout(() => {
+                window.zoomToLocation(item.id);
+            }, 350);
+        };
+    }
+
+    if (closeModalBtn) closeModalBtn.addEventListener('click', () => modal.classList.remove('active'));
+    if (modal) modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('active');
+    });
+});
