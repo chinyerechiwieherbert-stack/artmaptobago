@@ -18,7 +18,7 @@ const MAP_W = 5325;
 const MAP_H = 3525;
 const mapBounds = [[-MAP_H, 0], [0, MAP_W]];
 
-// ── FIXED MAP INITIALIZATION FUNCTION ──
+// ── FIXED SIDE-BY-SIDE MAP INITIALIZATION ENGINE ──
 function initMap() {
     if (mapInitialized) {
         if (mapInstance) mapInstance.invalidateSize({ animate: false });
@@ -28,7 +28,7 @@ function initMap() {
     const mapContainer = document.getElementById('map');
     if (!mapContainer) return;
 
-    // Safety fallback: if the map element hasn't computed sizes yet under CSS rules, wait
+    // Safety fallback: if the map element hasn't computed sizes yet under flexbox/grid tab switches, wait
     if (mapContainer.clientWidth === 0 || mapContainer.clientHeight === 0) return;
 
     mapInitialized = true;
@@ -54,7 +54,7 @@ function initMap() {
     L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
 }
 
-// ── FIXED RESTORED ZOOM TO LOCATION FUNCTION ──
+// ── FIXED ZOOM TO LOCATION FUNCTION ──
 window.zoomToLocation = (id) => {
     if (!mapInstance || !window.directoryData) return;
     const item = window.directoryData.find(d => d.id === id);
@@ -76,19 +76,6 @@ window.zoomToLocation = (id) => {
     if (target) {
         mapInstance.setView(target, zoomLevel);
     }
-};
-
-// ── HEADER FILTER CONTROLS BAR MANUAL ACTIONS ──
-window.manualZoomIn = () => {
-    if (mapInstance) mapInstance.zoomIn(0.5);
-};
-
-window.manualZoomOut = () => {
-    if (mapInstance) mapInstance.zoomOut(0.5);
-};
-
-window.resetMapFrame = () => {
-    if (mapInstance) mapInstance.setView([-MAP_H / 2, MAP_W / 2], -2);
 };
 
 
