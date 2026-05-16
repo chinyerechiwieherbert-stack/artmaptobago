@@ -273,6 +273,7 @@ const directoryData = [
         "region": "Western Coast",
         "area": "Buccoo",
         "address": "Buccoo Main Road, Buccoo, Tobago",
+        "photo": "Museum Buccoo.jpeg",
         "description": "Community museum celebrating the heritage and culture of Buccoo.",
         "id": "loc-20",
         "dot": [2150, 2650],
@@ -318,4 +319,144 @@ const directoryData = [
         "description": "Sculptor and artist creating powerful works in the Western Coast region.",
         "id": "loc-23",
         "dot": [2620, 2150],
-        "box":
+        "box": [850, 800, 150, 200],
+        "contact": "Contact via gallery/venue",
+        "iconType": "Creator"
+    },
+    {
+        "name": "Jason Nedd",
+        "category": "Artists",
+        "type": "Artist",
+        "region": "North Coast & Windward",
+        "area": "L'Anse Fourmi",
+        "photo": "jason_nedd.jpg",
+        "description": "Artist capturing the rugged beauty and spirit of Northern Tobago.",
+        "id": "loc-24",
+        "dot": [4420, 560],
+        "box": [670, 115, 150, 200],
+        "contact": "Contact via gallery/venue",
+        "iconType": "Creator"
+    },
+    {
+        "name": "TVAA (Tobago Visual Arts Association)",
+        "category": "Workshops",
+        "type": "Arts Organization",
+        "region": "North Coast & Windward",
+        "area": "Castara",
+        "photo": "tvaa.jpg",
+        "description": "An organization dedicated to supporting and promoting visual artists across Tobago.",
+        "id": "loc-25",
+        "contact": "Contact via gallery/venue",
+        "iconType": "Creator"
+    },
+    {
+        "name": "Suzi Alfred",
+        "category": "Artists",
+        "type": "Artist",
+        "region": "North Coast & Windward",
+        "area": "Castara",
+        "photo": "suzi_alfred.png",
+        "description": "Artist inspired by the serene and natural environment of Castara.",
+        "id": "loc-26",
+        "contact": "Contact via gallery/venue",
+        "iconType": "Creator"
+    },
+    {
+        "name": "Jahby Art",
+        "category": "Artists",
+        "type": "Artist / Craft",
+        "region": "North Coast & Windward",
+        "area": "Northern Tobago",
+        "photo": "jahby_art.jpg",
+        "description": "Craft and art that embodies the Northern Tobago spirit.",
+        "id": "loc-27",
+        "dot": [4040, 680],
+        "box": [5010, 115, 150, 200],
+        "contact": "Contact via gallery/venue",
+        "iconType": "Creator"
+    },
+    {
+        "name": "Fort King George",
+        "category": "Heritage",
+        "type": "Museum + Historic Site",
+        "region": "Scarborough/Central",
+        "area": "Scarborough",
+        "photo": "fort_king_george.jpg",
+        "address": "84 Fort Street, Scarborough, Tobago",
+        "description": "Tobago's best-preserved colonial fort, offering panoramic views and history.",
+        "id": "loc-28",
+        "contact": "Contact via gallery/venue",
+        "iconType": "Castle"
+    },
+    {
+        "name": "Botanical Gardens",
+        "category": "Nature",
+        "type": "Botanical Gardens",
+        "region": "Scarborough/Central",
+        "area": "Scarborough",
+        "photo": "botanical_gardens.jpeg",
+        "description": "Lush gardens in the heart of Scarborough featuring tropical flora.",
+        "id": "loc-29",
+        "dot": [3050, 2850],
+        "box": [2600, 2600, 150, 200],
+        "contact": "Contact via gallery/venue",
+        "iconType": "Water"
+    },
+    {
+        "name": "One Love Arts Atelier",
+        "category": "Galleries",
+        "type": "Gallery / Creative Space",
+        "region": "Southwest",
+        "area": "Lowlands",
+        "photo": "One Love Artelier.jpeg",
+        "address": "91 Allfields Trace, Lowlands, Tobago",
+        "description": "A vibrant gallery and artisan hub in the Lowlands area.",
+        "id": "loc-30",
+        "dot": [2050, 2750],
+        "box": [850, 1200, 150, 200],
+        "contact": "Contact via gallery/venue",
+        "iconType": "Gallery"
+    },
+    {
+        "name": "The Art Gallery",
+        "category": "Galleries",
+        "type": "Art Gallery",
+        "region": "Southwest",
+        "area": "Lowlands",
+        "address": "Hibiscus Drive Extension, Lowlands, Tobago",
+        "photo": "The Art Gallery.jpeg",
+        "description": "A key space for experiencing contemporary Tobago art.",
+        "id": "loc-31",
+        "contact": "Contact via gallery/venue",
+        "iconType": "Gallery"
+    }
+];
+
+const getIconSvg = (type) => {
+    const colorMap = {
+        'Castle': '#D62828',
+        'Water': '#0077B6',
+        'Windmill': '#6B8E23',
+        'Culture': '#E0A96D',
+        'Creator': '#6B8E23',
+        'Gallery': '#D62828',
+        'Nature': '#00B4D8'
+    };
+    let color = colorMap[type] || '#333';
+    
+    if (type === 'Castle') {
+        return `<svg fill="${color}" viewBox="0 0 24 24"><path d="M21 9v2h-2v11h-4v-6H9v6H5V11H3V9h2V5h2v4h2V5h2v4h2V5h2v4h2V5h2v4h2V5h2v4h2z"/></svg>`;
+    } else if (type === 'Water') {
+        return `<svg fill="${color}" viewBox="0 0 24 24"><path d="M12 2c0 0-8 8-8 13a8 8 0 0 0 16 0c0-5-8-13-8-13z"/></svg>`;
+    } else if (type === 'Windmill') {
+        return `<svg fill="${color}" viewBox="0 0 24 24"><path d="M12 2L9 8h6l-3-6zm0 20l3-6H9l3 6zM2 12l6-3v6l-6-3zm20 0l-6 3V9l6 3z"/></svg>`;
+    } else if (type === 'Culture') {
+        return `<svg fill="${color}" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path fill="#fff" d="M8 10h2v2H8zm6 0h2v2h-2zm-4 4h4v2h-4z"/></svg>`;
+    } else if (type === 'Creator') {
+        return `<svg fill="${color}" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`;
+    }
+    return `<svg fill="${color}" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>`;
+};
+
+window.directoryData = directoryData;
+window.getIconSvg = getIconSvg;
