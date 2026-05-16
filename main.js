@@ -1,4 +1,3 @@
-// Global Configuration Object
 const categoryColors = {
     'Artists': '#2D6A4F',
     'Museums': '#D62828',
@@ -14,8 +13,11 @@ const categoryColors = {
 
 let mapInstance;
 let mapInitialized = false;
+const MAP_W = 5325;
+const MAP_H = 3525;
+const mapBounds = [[-MAP_H, 0], [0, MAP_W]];
 
-// ── INSTANT RE-CENTERING MAP ENGINE (MANUAL ZOOM SELECTION) ──
+// ── OPTIMIZED SCALED ENGINE CONFIGURATION ──
 function initMap() {
     if (mapInitialized) return;
     
@@ -23,9 +25,6 @@ function initMap() {
     if (!mapContainer) return;
 
     mapInitialized = true;
-    const w = 5325;
-    const h = 3525;
-    const bounds = [[-h, 0], [0, w]];
 
     mapInstance = L.map('map', {
         crs: L.CRS.Simple,
@@ -33,22 +32,31 @@ function initMap() {
         maxZoom: 1,
         zoomControl: false,
         attributionControl: false,
-        maxBounds: bounds,
+        maxBounds: mapBounds,
         maxBoundsViscosity: 1.0
     });
 
-    // Load base artwork directly from repository root
-    L.imageOverlay('tobago_art_map.jpg', bounds).addTo(mapInstance);
+    L.imageOverlay('tobago_art_map.jpg', mapBounds).addTo(mapInstance);
     
-    // Default initial frame: Center the entire map layout immediately on load
-    mapInstance.fitBounds(bounds);
+    // Auto-fit the canvas boundary context precisely on immediate initialization
+    mapInstance.fitBounds(mapBounds);
     window.map = mapInstance;
-
-    // Manual Zoom Controls anchored perfectly in the bottom right corner
-    L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
 }
 
-// Fixed Instant View Center Panning
+// ── PUBLIC MANUAL INTERFACE API BUTTON BINDS ──
+window.manualZoomIn = () => {
+    if (mapInstance) mapInstance.zoomIn(0.5);
+};
+
+window.manualZoomOut = () => {
+    if (mapInstance) mapInstance.zoomOut(0.5);
+};
+
+window.resetMapFrame = () => {
+    if (mapInstance) mapInstance.fitBounds(mapBounds);
+};
+
+// Precise Vector Centering Logic Fixed for Cartesian Grid Tracking
 window.zoomToLocation = (id) => {
     if (!mapInstance || !window.directoryData) return;
     const item = window.directoryData.find(d => d.id === id);
@@ -57,7 +65,6 @@ window.zoomToLocation = (id) => {
     let targetX = 0;
     let targetY = 0;
 
-    // Evaluate absolute layout pixel properties cleanly
     if (item.dot) {
         targetX = item.dot[0];
         targetY = item.dot[1];
@@ -68,15 +75,15 @@ window.zoomToLocation = (id) => {
         return; 
     }
 
-    // Invert the layout y-axis vector to point inside Leaflet workspace constraints
-    const fixedLatLng = [-targetY, targetX];
+    // Centering coordinates safely inverted in negative Cartesian map space
+    const centerPoint = [-targetY, targetX];
     
-    // Set view instantly with zero animation delays to prevent frame drift
-    mapInstance.setView(fixedLatLng, -0.5);
+    // Set viewport coordinates clearly at a comfortable -0.5 mid-zoom layer
+    mapInstance.setView(centerPoint, -0.5);
 };
 
 
-// ── DIRECTORY INTERFACE LAYER ──
+// ── CONTROLLER SYSTEM ──
 document.addEventListener('DOMContentLoaded', () => {
     const navBtns = document.querySelectorAll('.nav-btn');
     const views = document.querySelectorAll('.view-section');
@@ -92,12 +99,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentRegion = 'All';
     let currentCategory = 'All';
 
-    // Wake up base map context layout framework
     initMap();
     setTimeout(() => { 
         initMap(); 
-        if (mapInstance) mapInstance.invalidateSize();
-    }, 200);
+        if (mapInstance) {
+            mapInstance.invalidateSize();
+            mapInstance.fitBounds(mapBounds);
+        }
+    }, 250);
 
     window.switchView = (targetId) => {
         navBtns.forEach(btn => {
@@ -120,12 +129,11 @@ document.addEventListener('DOMContentLoaded', () => {
             initMap();
             if (mapInstance) {
                 mapInstance.invalidateSize();
-                const w = 5325;
-                const h = 3525;
-                mapInstance.fitBounds([[-h, 0], [0, w]]);
-                
-                setTimeout(() => mapInstance.invalidateSize(), 50);
-                setTimeout(() => mapInstance.invalidateSize(), 250);
+                mapInstance.fitBounds(mapBounds);
+                setTimeout(() => {
+                    mapInstance.invalidateSize();
+                    mapInstance.fitBounds(mapBounds);
+                }, 100);
             }
         }
         window.scrollTo({ top: 0, behavior: 'smooth' });
