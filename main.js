@@ -1,4 +1,4 @@
-// Global Styling Configurations
+// Global Configuration Object
 const categoryColors = {
     'Artists': '#2D6A4F',
     'Museums': '#D62828',
@@ -12,22 +12,28 @@ const categoryColors = {
     'Public Art': '#2D6A4F'
 };
 
-let mapInstance;
-let mapInitialized = false;
+let mapInstance = null;
 const MAP_W = 5325;
 const MAP_H = 3525;
 const mapBounds = [[-MAP_H, 0], [0, MAP_W]];
 
-// ── IMMUNE MAP INITIALIZATION ENGINE ──
+// ── SAFE VIEW-ACTIVATED MAP ENGINE ──
 function initMap() {
-    if (mapInitialized) return;
+    // If the map is already built, just refresh its dimensions and exit
+    if (mapInstance) {
+        mapInstance.invalidateSize();
+        return;
+    }
     
     const mapContainer = document.getElementById('map');
     if (!mapContainer) return;
 
-    mapInitialized = true;
+    // PROTECTION FALLBACK: If the element is still zero-width/hidden, don't build yet
+    if (mapContainer.clientWidth === 0 || mapContainer.clientHeight === 0) {
+        return;
+    }
 
-    // Build the Leaflet engine instance mapping workspace parameters
+    // Build the Leaflet flat mapping coordinates framework
     mapInstance = L.map('map', {
         crs: L.CRS.Simple,
         minZoom: -3,
@@ -40,12 +46,12 @@ function initMap() {
 
     L.imageOverlay('tobago_art_map.jpg', mapBounds).addTo(mapInstance);
     
-    // IMMUNITY FIX: Set explicit coordinate center point to prevent browser repaint failures
-    mapInstance.setView([-1762.5, 2662.5], -2);
+    // Center the entire map overview cleanly on screen layout
+    mapInstance.fitBounds(mapBounds);
     window.map = mapInstance;
 }
 
-// ── MANUAL TOP FILTER NAVIGATION BINDS ──
+// ── MANUAL TOP BAR CONTROL ACTION INTERFACES ──
 window.manualZoomIn = () => {
     if (mapInstance) mapInstance.zoomIn(0.5);
 };
@@ -56,12 +62,11 @@ window.manualZoomOut = () => {
 
 window.resetMapFrame = () => {
     if (mapInstance) {
-        // Snaps map frame back to absolute center of the layout graphic instantly
-        mapInstance.setView([-1762.5, 2662.5], -2);
+        mapInstance.fitBounds(mapBounds);
     }
 };
 
-// ── ACCURATE PINPOINT TRACKING ENGINE ──
+// Precise Point Mapping Focus Engine
 window.zoomToLocation = (id) => {
     if (!mapInstance || !window.directoryData) return;
     const item = window.directoryData.find(d => d.id === id);
@@ -70,7 +75,6 @@ window.zoomToLocation = (id) => {
     let targetX = 0;
     let targetY = 0;
 
-    // Pull precise location data coordinates directly from calibration vectors
     if (item.dot) {
         targetX = item.dot[0];
         targetY = item.dot[1];
@@ -81,15 +85,14 @@ window.zoomToLocation = (id) => {
         return; 
     }
 
-    // Invert the layout coordinate vector to position perfectly on Leaflet Cartesian canvas grids
     const centerPoint = [-targetY, targetX];
     
-    // Zoom -1 keeps the view framed perfectly around their region instead of zooming too close into raw background ocean color
-    mapInstance.setView(centerPoint, -1);
+    // Zoom instantly to clear crisp view focus level (-0.5)
+    mapInstance.setView(centerPoint, -0.5);
 };
 
 
-// ── APPLICATION INITIALIZATION CONTROLLER ──
+// ── CORE INTERFACE APP CONTROLLER LAYER ──
 document.addEventListener('DOMContentLoaded', () => {
     const navBtns = document.querySelectorAll('.nav-btn');
     const views = document.querySelectorAll('.view-section');
@@ -105,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentRegion = 'All';
     let currentCategory = 'All';
 
-    // Build the standalone grid sheets and sidebar items instantly in the background stack loop
+    // Populate directory data cards instantly into backend rendering queue loop
     renderDirectory();
     renderGrids();
 
@@ -126,20 +129,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        // Initialize Map ONLY when container view finishes unhiding completely
         if (targetId === 'map-view') {
-            // Wake up map framework with safe layout rendering delays
-            initMap();
             setTimeout(() => {
                 initMap();
-                if (mapInstance) {
-                    mapInstance.invalidateSize();
-                }
-            }, 100);
+            }, 50);
+            
+            // Layout dimension recalculation intervals to safeguard against flexbox/grid layout delays
+            setTimeout(() => {
+                if (mapInstance) mapInstance.invalidateSize();
+            }, 150);
             
             setTimeout(() => {
-                if (mapInstance) {
-                    mapInstance.invalidateSize();
-                }
+                if (mapInstance) mapInstance.invalidateSize();
             }, 400);
         }
         window.scrollTo({ top: 0, behavior: 'smooth' });
