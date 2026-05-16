@@ -1,4 +1,4 @@
-// ── CONSTANTS & GLOBAL CONFIGURATION ──
+// ── GLOBAL CONFIGURATION AND COLORS (PLACED AT THE TOP TO PREVENT CRASHES) ──
 const categoryColors = {
     'Artists': '#2D6A4F',
     'Museums': '#D62828',
@@ -18,7 +18,7 @@ const MAP_W = 5325;
 const MAP_H = 3525;
 const mapBounds = [[-MAP_H, 0], [0, MAP_W]];
 
-// ── CORE LEAFLET IMAGE ENGINE ──
+// ── FIXED MAP INITIALIZATION FUNCTION ──
 function initMap() {
     if (mapInitialized) {
         if (mapInstance) mapInstance.invalidateSize({ animate: false });
@@ -28,7 +28,7 @@ function initMap() {
     const mapContainer = document.getElementById('map');
     if (!mapContainer) return;
 
-    // Safety check to ensure container layout holds dimensions completely
+    // Safety fallback: if the map container is hidden or zero-sized, wait
     if (mapContainer.clientWidth === 0 || mapContainer.clientHeight === 0) return;
 
     mapInitialized = true;
@@ -43,37 +43,22 @@ function initMap() {
         maxBoundsViscosity: 1.0
     });
 
-    // Load base artwork directly from repository root
+    // Clean flat path pointing directly to your root image file on GitHub
     L.imageOverlay('tobago_art_map.jpg', mapBounds).addTo(mapInstance);
     
-    // Set initial viewpoint centered on the whole island asset spread
+    // Default initial frame: show the whole map cleanly centered
     mapInstance.setView([-MAP_H / 2, MAP_W / 2], -2);
     window.map = mapInstance;
 }
 
-// ── MANUAL FILTER BAR CONTROL INTERFACES ──
-window.manualZoomIn = () => {
-    if (mapInstance) mapInstance.zoomIn(0.5);
-};
-
-window.manualZoomOut = () => {
-    if (mapInstance) mapInstance.zoomOut(0.5);
-};
-
-window.resetMapFrame = () => {
-    if (mapInstance) {
-        mapInstance.setView([-MAP_H / 2, MAP_W / 2], -2);
-    }
-};
-
-// Precise Point Mapping Axis Focus Translator
+// ── FIXED ZOOM TO LOCATION FUNCTION ──
 window.zoomToLocation = (id) => {
     if (!mapInstance || !window.directoryData) return;
     const item = window.directoryData.find(d => d.id === id);
     if (!item) return;
 
     let target = null;
-    let zoomLevel = -0.5; // Premium framed zoom comfort depth layer
+    let zoomLevel = -0.5; // Clean, framed zoom scale close to the text labels
 
     if (item.dot) {
         const [x, y] = item.dot;
@@ -90,8 +75,21 @@ window.zoomToLocation = (id) => {
     }
 };
 
+// ── MANUAL CONTROL BAR BUTTON ACTIONS ──
+window.manualZoomIn = () => {
+    if (mapInstance) mapInstance.zoomIn(0.5);
+};
 
-// ── APPLICATION NAVIGATION AND DOM INTERFACE LAYER ──
+window.manualZoomOut = () => {
+    if (mapInstance) mapInstance.zoomOut(0.5);
+};
+
+window.resetMapFrame = () => {
+    if (mapInstance) mapInstance.setView([-MAP_H / 2, MAP_W / 2], -2);
+};
+
+
+// ── CORE CONTROLLER LAYER ──
 document.addEventListener('DOMContentLoaded', () => {
     const navBtns = document.querySelectorAll('.nav-btn');
     const views = document.querySelectorAll('.view-section');
@@ -107,10 +105,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentRegion = 'All';
     let currentCategory = 'All';
 
-    // Build front-end components instantly
+    // Render list contents immediately on start
     renderDirectory();
     renderGrids();
 
+    // Re-synchronized View Switcher
     window.switchView = (targetId) => {
         navBtns.forEach(btn => {
             if (btn.getAttribute('data-target') === targetId) {
@@ -129,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (targetId === 'map-view') {
-            // Force Leaflet initialization sequence blocks
+            // Force rendering intervals to ensure Leaflet captures layout geometry perfectly
             initMap();
             setTimeout(() => {
                 initMap();
