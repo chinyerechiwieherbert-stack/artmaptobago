@@ -1,472 +1,186 @@
-const directoryData = [
-    {
-        "name": "Martin Superville",
-        "category": "Artists",
-        "type": "Artist / Painter",
-        "region": "Southwest",
-        "area": "Lowlands",
-        "photo": "martin_superville.jpg",
-        "description": "Renowned Tobago artist known for vibrant depictions of island life and culture.",
-        "id": "loc-1",
-        "dot": [1650, 3150],
-        "box": [1650, 3150, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Creator"
-    },
-    {
-        "name": "Dean Martin",
-        "category": "Artists",
-        "type": "Artist",
-        "region": "Scarborough/Central",
-        "area": "Scarborough",
-        "photo": "dean_martin.jpg",
-        "description": "Local artist capturing the essence of Tobago through expressive works.",
-        "id": "loc-2",
-        "dot": [2150, 3150],
-        "box": [2150, 3150, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Creator"
-    },
-    {
-        "name": "Ikechukwu Ojuro",
-        "category": "Artists",
-        "type": "Designer / Artist",
-        "region": "Scarborough/Central",
-        "area": "Scarborough",
-        "photo": "ike_ojuro.jpg",
-        "description": "Contemporary designer and artist pushing creative boundaries in Tobago.",
-        "id": "loc-3",
-        "dot": [2650, 3150],
-        "box": [2650, 3150, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Creator"
-    },
-    {
-        "name": "Shaw Park Cultural Complex",
-        "category": "Cultural Sites",
-        "type": "Arts Venue / Cultural Space",
-        "region": "Scarborough/Central",
-        "area": "Shaw Park",
-        "photo": "shaw_park.jpg",
-        "address": "Shaw Park, Scarborough, Tobago",
-        "description": "Tobago's premier performing arts theater and exhibition space.",
-        "id": "loc-4",
-        "dot": [3150, 3150],
-        "box": [3150, 3150, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Culture"
-    },
-    {
-        "name": "Tobago Museum",
-        "category": "Museums",
-        "type": "Museum",
-        "region": "Scarborough/Central",
-        "area": "Scarborough",
-        "photo": "tobago_museum.jpeg",
-        "address": "84 Fort Street, Scarborough, Tobago (Inside Fort King George)",
-        "description": "Located within Fort King George, showcasing the rich history of Tobago.",
-        "id": "loc-5",
-        "dot": [3650, 3150],
-        "box": [3650, 3150, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Gallery"
-    },
-    {
-        "name": "Magdalena Art Gallery",
-        "category": "Galleries",
-        "type": "Art Gallery",
-        "region": "Southwest",
-        "area": "Lowlands",
-        "photo": "magdalena_gallery.jpg",
-        "description": "A premium space showcasing local and regional fine art.",
-        "id": "loc-6",
-        "dot": [4150, 3150],
-        "box": [4150, 3150, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Gallery"
-    },
-    {
-        "name": "Shonari Richardson",
-        "category": "Artists",
-        "type": "Artist",
-        "region": "Scarborough/Central",
-        "area": "Scarborough",
-        "photo": "shonari_richardson.png",
-        "description": "Contemporary Tobago artist focusing on cultural themes.",
-        "id": "loc-7",
-        "dot": [3500, 2750],
-        "box": [3500, 2750, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Creator"
-    },
-    {
-        "name": "Nick McKenna",
-        "category": "Artists",
-        "type": "Artist",
-        "region": "Scarborough/Central",
-        "area": "Scarborough",
-        "photo": "nick_mckenna.png",
-        "description": "Artist known for unique perspectives on Tobago's landscape.",
-        "id": "loc-8",
-        "dot": [4150, 2700],
-        "box": [4150, 2700, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Creator"
-    },
-    {
-        "name": "Anthony Mckenna",
-        "category": "Artists",
-        "type": "Artist",
-        "region": "Southwest",
-        "area": "Crown Point",
-        "photo": "anthony_mckenna.jpg",
-        "description": "Creative spirit based in the vibrant Crown Point area.",
-        "id": "loc-9",
-        "dot": [100, 2800],
-        "box": [100, 2800, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Creator"
-    },
-    {
-        "name": "Gary's Wraps",
-        "category": "Creative Businesses",
-        "type": "Creative Business",
-        "region": "Southwest",
-        "area": "Crown Point",
-        "photo": "garys_wraps.jpg",
-        "description": "Innovative local brand blending creativity with commerce.",
-        "id": "loc-10",
-        "dot": [550, 2400],
-        "box": [550, 2400, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Creator"
-    },
-    {
-        "name": "Planet Ceramics",
-        "category": "Workshops",
-        "type": "Ceramic Studio",
-        "region": "Southwest",
-        "area": "Southwest Tobago",
-        "photo": "planet_ceramics.jpeg",
-        "description": "Ceramic studio and workshop producing unique island-inspired pottery.",
-        "id": "loc-11",
-        "dot": [100, 2400],
-        "box": [100, 2400, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Creator"
-    },
-    {
-        "name": "Renease Benjamin",
-        "category": "Artists",
-        "type": "Artist",
-        "region": "Southwest",
-        "area": "Crown Point",
-        "photo": "renee_benjamin.jpg",
-        "description": "Artist capturing the light and life of Southwest Tobago.",
-        "id": "loc-12",
-        "dot": [650, 3150],
-        "box": [650, 3150, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Creator"
-    },
-    {
-        "name": "Joseph Bacchus",
-        "category": "Artists",
-        "type": "Artist",
-        "region": "Southwest",
-        "area": "Crown Point",
-        "photo": "joseph_bacchus.jpg",
-        "description": "Local artist with a deep connection to the Crown Point community.",
-        "id": "loc-13",
-        "dot": [1150, 3150],
-        "box": [1150, 3150, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Creator"
-    },
-    {
-        "name": "Collis Street Art",
-        "category": "Public Art",
-        "type": "Street Artist",
-        "region": "Southwest",
-        "area": "Crown Point",
-        "photo": "collis_street_art.jpg",
-        "description": "Vibrant street art that brings the walls of Crown Point to life.",
-        "id": "loc-14",
-        "dot": [150, 3150],
-        "box": [150, 3150, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Creator"
-    },
-    {
-        "name": "Amber Shaw",
-        "category": "Artists",
-        "type": "Artist",
-        "region": "Western Coast",
-        "area": "Plymouth",
-        "photo": "amber_shaw.jpeg",
-        "description": "Plymouth-based artist known for intricate and meaningful works.",
-        "id": "loc-15",
-        "dot": [100, 1200],
-        "box": [100, 1200, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Creator"
-    },
-    {
-        "name": "Kimme Museum",
-        "category": "Museums",
-        "type": "Museum / Sculpture Garden",
-        "region": "Western Coast",
-        "area": "Mt. Irvine / Bethel",
-        "photo": "kimme_museum.jpg",
-        "address": "Kimme Drive, Bethel, Tobago",
-        "description": "The castle-like studio and museum of the late Luise Kimme, featuring monumental sculptures.",
-        "id": "loc-16",
-        "dot": [550, 1200],
-        "box": [550, 1200, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Gallery"
-    },
-    {
-        "name": "Arletys Arias",
-        "category": "Artists",
-        "type": "Artist",
-        "region": "Western Coast",
-        "area": "Plymouth",
-        "photo": "arletys_arias.jpg",
-        "description": "Artist bringing a unique contemporary voice to the Plymouth region.",
-        "id": "loc-17",
-        "dot": [1000, 1200],
-        "box": [1000, 1200, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Creator"
-    },
-    {
-        "name": "Chinyere Herbert",
-        "category": "Artists",
-        "type": "Graphic Designer / Curator",
-        "region": "Western Coast",
-        "area": "Plymouth",
-        "photo": "chinyere_herbert.jpeg",
-        "description": "Multi-disciplinary creative, graphic designer and art curator.",
-        "id": "loc-18",
-        "dot": [1500, 1200],
-        "box": [1500, 1200, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Creator"
-    },
-    {
-        "name": "Tomley Roberts",
-        "category": "Artists",
-        "type": "Artist",
-        "region": "Western Coast",
-        "area": "Plymouth",
-        "photo": "tomley_roberts.jpg",
-        "description": "Artist and educator deeply rooted in Tobago's art education and creation.",
-        "id": "loc-19",
-        "dot": [2000, 1200],
-        "box": [2000, 1200, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Creator"
-    },
-    {
-        "name": "Museum Buccoo",
-        "category": "Museums",
-        "type": "Museum / Heritage",
-        "region": "Western Coast",
-        "area": "Buccoo",
-        "address": "Buccoo Main Road, Buccoo, Tobago",
-        "photo": "Museum Buccoo.jpeg",
-        "description": "Community museum celebrating the heritage and culture of Buccoo.",
-        "id": "loc-20",
-        "dot": [100, 2000],
-        "box": [100, 2000, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Gallery"
-    },
-    {
-        "name": "Healing with Horses",
-        "category": "Heritage",
-        "type": "Cultural / Experiential Venue",
-        "region": "Western Coast",
-        "area": "Buccoo",
-        "photo": "healing_with_horses.jpg",
-        "description": "A therapeutic and cultural center offering unique experiences with horses.",
-        "id": "loc-21",
-        "dot": [550, 2000],
-        "box": [550, 2000, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Castle"
-    },
-    {
-        "name": "Mystery Tombstone",
-        "category": "Heritage",
-        "type": "Historical Site",
-        "region": "Western Coast",
-        "area": "Plymouth",
-        "photo": "mystery_tombstone.jpg",
-        "description": "A famous historical landmark with an enigmatic inscription from 1783.",
-        "id": "loc-22",
-        "dot": [100, 1600],
-        "box": [100, 1600, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Castle"
-    },
-    {
-        "name": "Duniesky Lora",
-        "category": "Artists",
-        "type": "Artist / Sculptor",
-        "region": "Western Coast",
-        "area": "Plymouth",
-        "photo": "duniesky_lora.jpg",
-        "description": "Sculptor and artist creating powerful works in the Western Coast region.",
-        "id": "loc-23",
-        "dot": [1000, 1600],
-        "box": [1000, 1600, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Creator"
-    },
-    {
-        "name": "Jason Nedd",
-        "category": "Artists",
-        "type": "Artist",
-        "region": "North Coast & Windward",
-        "area": "L'Anse Fourmi",
-        "photo": "jason_nedd.jpg",
-        "description": "Artist capturing the rugged beauty and spirit of Northern Tobago.",
-        "id": "loc-24",
-        "dot": [4000, 400],
-        "box": [4000, 400, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Creator"
-    },
-    {
-        "name": "TVAA (Tobago Visual Arts Association)",
-        "category": "Workshops",
-        "type": "Arts Organization",
-        "region": "North Coast & Windward",
-        "area": "Castara",
-        "photo": "tvaa.jpg",
-        "description": "An organization dedicated to supporting and promoting visual artists across Tobago.",
-        "id": "loc-25",
-        "dot": [1500, 800],
-        "box": [1500, 800, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Creator"
-    },
-    {
-        "name": "Suzi Alfred",
-        "category": "Artists",
-        "type": "Artist",
-        "region": "North Coast & Windward",
-        "area": "Castara",
-        "photo": "suzi_alfred.png",
-        "description": "Artist inspired by the serene and natural environment of Castara.",
-        "id": "loc-26",
-        "dot": [2500, 800],
-        "box": [2500, 800, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Creator"
-    },
-    {
-        "name": "Jahby Art",
-        "category": "Artists",
-        "type": "Artist / Craft",
-        "region": "North Coast & Windward",
-        "area": "Northern Tobago",
-        "photo": "jahby_art.jpg",
-        "description": "Craft and art that embodies the Northern Tobago spirit.",
-        "id": "loc-27",
-        "dot": [3000, 400],
-        "box": [3000, 400, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Creator"
-    },
-    {
-        "name": "Fort King George",
-        "category": "Heritage",
-        "type": "Museum + Historic Site",
-        "region": "Scarborough/Central",
-        "area": "Scarborough",
-        "photo": "fort_king_george.jpg",
-        "address": "84 Fort Street, Scarborough, Tobago",
-        "description": "Tobago's best-preserved colonial fort, offering panoramic views and history.",
-        "id": "loc-28",
-        "dot": [3650, 3150],
-        "box": [3650, 3150, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Castle"
-    },
-    {
-        "name": "Botanical Gardens",
-        "category": "Nature",
-        "type": "Botanical Gardens",
-        "region": "Scarborough/Central",
-        "area": "Scarborough",
-        "photo": "botanical_gardens.jpeg",
-        "description": "Lush gardens in the heart of Scarborough featuring tropical flora.",
-        "id": "loc-29",
-        "dot": [3150, 2700],
-        "box": [3150, 2700, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Water"
-    },
-    {
-        "name": "One Love Arts Atelier",
-        "category": "Galleries",
-        "type": "Gallery / Creative Space",
-        "region": "Southwest",
-        "area": "Lowlands",
-        "photo": "One Love Artelier.jpeg",
-        "address": "91 Allfields Trace, Lowlands, Tobago",
-        "description": "A vibrant gallery and artisan hub in the Lowlands area.",
-        "id": "loc-30",
-        "dot": [1000, 2000],
-        "box": [1000, 2000, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Gallery"
-    },
-    {
-        "name": "The Art Gallery",
-        "category": "Galleries",
-        "type": "Art Gallery",
-        "region": "Southwest",
-        "area": "Lowlands",
-        "address": "Hibiscus Drive Extension, Lowlands, Tobago",
-        "photo": "The Art Gallery.jpeg",
-        "description": "A key space for experiencing contemporary Tobago art.",
-        "id": "loc-31",
-        "dot": [2000, 2000],
-        "box": [2000, 2000, 300, 300],
-        "contact": "Contact via gallery/venue",
-        "iconType": "Gallery"
-    }
-];
-
-const getIconSvg = (type) => {
-    const colorMap = {
-        'Castle': '#D62828',
-        'Water': '#0077B6',
-        'Windmill': '#6B8E23',
-        'Culture': '#E0A96D',
-        'Creator': '#6B8E23',
-        'Gallery': '#D62828',
-        'Nature': '#00B4D8'
-    };
-    let color = colorMap[type] || '#333';
-    
-    if (type === 'Castle') {
-        return `<svg fill="${color}" viewBox="0 0 24 24"><path d="M21 9v2h-2v11h-4v-6H9v6H5V11H3V9h2V5h2v4h2V5h2v4h2V5h2v4h2V5h2v4h2z"/></svg>`;
-    } else if (type === 'Water') {
-        return `<svg fill="${color}" viewBox="0 0 24 24"><path d="M12 2c0 0-8 8-8 13a8 8 0 0 0 16 0c0-5-8-13-8-13z"/></svg>`;
-    } else if (type === 'Windmill') {
-        return `<svg fill="${color}" viewBox="0 0 24 24"><path d="M12 2L9 8h6l-3-6zm0 20l3-6H9l3 6zM2 12l6-3v6l-6-3zm20 0l-6 3V9l6 3z"/></svg>`;
-    } else if (type === 'Culture') {
-        return `<svg fill="${color}" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path fill="#fff" d="M8 10h2v2H8zm6 0h2v2h-2zm-4 4h4v2h-4z"/></svg>`;
-    } else if (type === 'Creator') {
-        return `<svg fill="${color}" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`;
-    }
-    return `<svg fill="${color}" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>`;
+// ── 1. GLOBAL ELEMENT CONFIGURATIONS ──
+const categoryColors = {
+    'Artists': '#2D6A4F',
+    'Museums': '#D62828',
+    'Galleries': '#D62828',
+    'Heritage': '#D62828',
+    'Nature': '#0077B6',
+    'Cultural Sites': '#E0A96D',
+    'Creative Businesses': '#2D6A4F',
+    'Workshops': '#2D6A4F',
+    'Festivals': '#E0A96D',
+    'Public Art': '#2D6A4F'
 };
 
-window.directoryData = directoryData;
-window.getIconSvg = getIconSvg;
+let mapInstance = null;
+let mapInitialized = false;
+const MAP_W = 5325;
+const MAP_H = 3525;
+const mapBounds = [[-MAP_H, 0], [0, MAP_W]];
+
+// ── 2. MAP LIFE-CYCLE ENGINE ──
+function initMap() {
+    if (mapInitialized) {
+        if (mapInstance) mapInstance.invalidateSize({ animate: false });
+        return;
+    }
+
+    const mapContainer = document.getElementById('map');
+    if (!mapContainer) return;
+
+    mapInitialized = true;
+
+    mapInstance = L.map('map', {
+        crs: L.CRS.Simple,
+        minZoom: -3,
+        maxZoom: 1,
+        zoomControl: false, 
+        attributionControl: false,
+        maxBounds: mapBounds,
+        maxBoundsViscosity: 1.0
+    });
+
+    L.imageOverlay('tobago_art_map.jpg', mapBounds).addTo(mapInstance);
+    mapInstance.setView([-MAP_H / 2, MAP_W / 2], -2);
+    window.map = mapInstance;
+
+    L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
+}
+
+// ── 3. LOCATION POSITION SNAPPING ENGINE ──
+window.zoomToLocation = (id) => {
+    if (!mapInstance || !window.directoryData) return;
+    const item = window.directoryData.find(d => d.id === id);
+    if (!item) return;
+
+    let target = null;
+    let zoomLevel = -1.2; 
+
+    if (item.box) {
+        const [bx, by, bw, bh] = item.box;
+        const cx = bx + (bw / 2);
+        const cy = by + (bh / 2);
+        target = [-cy, cx];
+    } else if (item.dot) {
+        const [x, y] = item.dot;
+        target = [-y, x];
+    }
+
+    if (target) {
+        mapInstance.setView(target, zoomLevel);
+    }
+
+    const mapSection = document.getElementById('map-view');
+    if (mapSection && !mapSection.classList.contains('hidden')) {
+        const offset = 80; 
+        const elementPosition = mapSection.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({ top: elementPosition - offset, behavior: 'smooth' });
+    }
+};
+
+// ── 4. BULLETPROOF TAB SWITCHER ──
+// Placed globally so it never gets blocked by data loading errors
+window.switchView = (targetId) => {
+    const navBtns = document.querySelectorAll('.nav-btn');
+    const views = document.querySelectorAll('.view-section');
+
+    navBtns.forEach(btn => {
+        if (btn.getAttribute('data-target') === targetId) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+
+    views.forEach(view => {
+        if (view.id === targetId) {
+            view.classList.remove('hidden');
+        } else {
+            view.classList.add('hidden');
+        }
+    });
+
+    if (targetId === 'map-view') {
+        setTimeout(() => {
+            initMap();
+            if (mapInstance) {
+                mapInstance.invalidateSize({ animate: false });
+                mapInstance.setView([-MAP_H / 2, MAP_W / 2], -2);
+            }
+        }, 100);
+        
+        setTimeout(() => {
+            if (mapInstance) mapInstance.invalidateSize({ animate: false });
+        }, 400);
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+// ── 5. APPLICATION DATA & EVENTS ──
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // 1. Immediately attach navigation buttons so they ALWAYS work
+    const navBtns = document.querySelectorAll('.nav-btn');
+    navBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault(); 
+            window.switchView(btn.getAttribute('data-target'));
+        });
+    });
+
+    // 2. Safely build the data sections
+    const directoryList = document.getElementById('directory-list');
+    const artistGrid = document.getElementById('artist-grid');
+    const attractionsGrid = document.getElementById('attractions-grid');
+    const festivalsGrid = document.getElementById('festivals-grid');
+    const regionTags = document.querySelectorAll('#region-filters .tag');
+    const categoryTags = document.querySelectorAll('#category-filters .tag');
+    const modal = document.getElementById('profile-modal');
+    const closeModalBtn = document.querySelector('.close-modal');
+    
+    let currentRegion = 'All';
+    let currentCategory = 'All';
+
+    function getPhotoHtml(item) {
+        if (item.photo) {
+            return `<img src="${item.photo}" alt="${item.name}" class="card-img" onerror="this.onerror=null;this.style.display='none';this.insertAdjacentHTML('afterend','<div class=\\'card-img-placeholder\\'>${item.name.charAt(0)}</div>')">`;
+        }
+        return `<div class="card-img-placeholder">${item.name.charAt(0)}</div>`;
+    }
+
+    function renderDirectory() {
+        if (!directoryList || !window.directoryData) return;
+        directoryList.innerHTML = '';
+        
+        const filteredData = window.directoryData.filter(item => {
+            const regionMatch = currentRegion === 'All' || item.region === currentRegion;
+            const categoryMatch = currentCategory === 'All' || item.category === currentCategory;
+            return regionMatch && categoryMatch;
+        });
+
+        filteredData.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = 'directory-card';
+            card.setAttribute('data-id', item.id);
+            card.style.animationDelay = `${index * 0.01}s`;
+            card.innerHTML = `
+                <div class="card-image-wrapper">${getPhotoHtml(item)}</div>
+                <div class="card-info">
+                    <h4>${item.name}</h4>
+                    <p>${item.area}</p>
+                    <span class="card-category" style="background: ${categoryColors[item.category] || '#2D6A4F'}; color: white;">${item.category}</span>
+                </div>
+                <div class="card-arrow">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+            `;
+            
+            card.addEventListener('click', () => {
+                window.zoomToLocation(item.id);
+                document.querySelectorAll('.directory-card').forEach(c => c.classList.remove('highlight-active'));
+                card.classList.add('highlight-active');
+            });
+
+            directoryList.appendChild(card);
+        });
