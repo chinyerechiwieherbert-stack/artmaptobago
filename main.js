@@ -1,3 +1,4 @@
+// Global Configuration Object
 const categoryColors = {
     'Artists': '#2D6A4F',
     'Museums': '#D62828',
@@ -12,10 +13,9 @@ const categoryColors = {
 };
 
 let mapInstance;
-let markers = [];
 let mapInitialized = false;
 
-// ── RECONFIGURED TEXT-NODE CIRCULAR OVERLAY ENGINE ──
+// ── CLEAN MAP ZOOM ENGINE (NO OVERLAYS) ──
 function initMap() {
     if (mapInitialized) return;
     
@@ -37,102 +37,35 @@ function initMap() {
         maxBoundsViscosity: 1.0
     });
 
+    // Load base artwork directly from repository root
     L.imageOverlay('tobago_art_map.jpg', bounds).addTo(mapInstance);
     mapInstance.fitBounds(bounds);
     window.map = mapInstance;
 
     L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
-
-    // Apply interactive hot-circle markers over text locations
-    if (window.directoryData && Array.isArray(window.directoryData)) {
-        window.directoryData.forEach(item => {
-            if (item.dot) {
-                const [x, y] = item.dot;
-                
-                // Draw a beautiful, clean target ring directly centered over the item's text node
-                const circleOverlay = L.circleMarker([-y, x], {
-                    radius: 12,
-                    color: categoryColors[item.category] || '#2D6A4F',
-                    weight: 2,
-                    fillColor: categoryColors[item.category] || '#2D6A4F',
-                    fillOpacity: 0.25,
-                    className: 'map-marker pulse-marker'
-                }).addTo(mapInstance);
-
-                circleOverlay.bindTooltip(item.name, {
-                    className: 'premium-map-tooltip',
-                    direction: 'top',
-                    offset: [0, -10],
-                    sticky: false
-                });
-
-                circleOverlay.bindPopup(`
-                    <div class="popup-premium">
-                        <h4>${item.name}</h4>
-                        <p>${item.area}</p>
-                        <button onclick="window.showProfile('${item.id}')">View Full Profile</button>
-                    </div>
-                `, {
-                    className: 'custom-popup-premium'
-                });
-
-                circleOverlay.on('click', () => {
-                    if (window.highlightInDirectory) {
-                        window.highlightInDirectory(item.id, true);
-                    }
-                });
-
-                markers.push({
-                    item: item,
-                    marker: circleOverlay
-                });
-            }
-        });
-    }
 }
 
+// Fixed Dynamic Position Vector Locator
 window.zoomToLocation = (id) => {
     if (!mapInstance || !window.directoryData) return;
     const item = window.directoryData.find(d => d.id === id);
     if (!item || !item.dot) return;
 
+    // Read the coordinate entries directly from data vectors
     const [x, y] = item.dot;
-    const target = [-y, x];
     
-    // Smooth cinematic zoom directly onto the centered text label
-    mapInstance.flyTo(target, 0.5, { duration: 1.5 });
-};
-
-window.highlightHotspot = (id) => {
-    const entry = markers.find(m => m.item.id === id);
-    if (entry && entry.marker) {
-        entry.marker.setStyle({ radius: 18, fillOpacity: 0.5, weight: 3 });
-        entry.marker.openTooltip();
-    }
-};
-
-window.unhighlightHotspot = (id) => {
-    const entry = markers.find(m => m.item.id === id);
-    if (entry && entry.marker) {
-        entry.marker.setStyle({ radius: 12, fillOpacity: 0.25, weight: 2 });
-        entry.marker.closeTooltip();
-    }
-};
-
-window.filterMap = (region, category) => {
-    markers.forEach(m => {
-        const regionMatch = region === 'All' || m.item.region === region;
-        const categoryMatch = category === 'All' || m.item.category === category;
-        if (regionMatch && categoryMatch) {
-            m.marker.addTo(mapInstance);
-        } else {
-            m.marker.remove();
-        }
+    // Invert the y-axis to match Leaflet CRS.Simple space constraints perfectly
+    const targetCoordinate = [-y, x];
+    
+    // Fly smoothly directly onto the item's precise layout spot
+    mapInstance.flyTo(targetCoordinate, 0.5, {
+        duration: 1.2,
+        easeLinearity: 0.25
     });
 };
 
 
-// ── CONTROLLER LAYER ──
+// ── INTERFACE & DIRECTORY CONTROLLER LAYER ──
 document.addEventListener('DOMContentLoaded', () => {
     const navBtns = document.querySelectorAll('.nav-btn');
     const views = document.querySelectorAll('.view-section');
@@ -148,6 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentRegion = 'All';
     let currentCategory = 'All';
 
+    // Wake up base map layout
     initMap();
     setTimeout(() => { initMap(); }, 200);
 
@@ -206,7 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function filterContent() {
         renderDirectory();
-        window.filterMap(currentRegion, currentCategory);
     }
 
     function getPhotoHtml(item) {
@@ -245,13 +178,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
             
+            // Fires pinpoint tracking zoom instantly when sidebar card is clicked
             card.addEventListener('click', () => {
                 window.zoomToLocation(item.id);
-                window.highlightHotspot(item.id);
+                
+                // Visually mark active sidebar selection state
+                document.querySelectorAll('.directory-card').forEach(c => c.classList.remove('highlight-active'));
+                card.classList.add('highlight-active');
             });
-            
-            card.addEventListener('mouseenter', () => window.highlightHotspot(item.id));
-            card.addEventListener('mouseleave', () => window.unhighlightHotspot(item.id));
 
             directoryList.appendChild(card);
         });
@@ -332,22 +266,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('btn-view-on-map').onclick = () => {
             modal.classList.remove('active');
             switchView('map-view');
-            setTimeout(() => window.zoomToLocation(item.id), 300);
+            setTimeout(() => window.zoomToLocation(item.id), 350);
         };
     }
-
-    window.highlightInDirectory = (id, scroll = true) => {
-        const targetCard = document.querySelector(`.directory-card[data-id="${id}"]`);
-        if (targetCard) {
-            if (scroll) targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            targetCard.classList.add('highlight-active');
-        }
-    };
-
-    window.unhighlightInDirectory = (id) => {
-        const targetCard = document.querySelector(`.directory-card[data-id="${id}"]`);
-        if (targetCard) targetCard.classList.remove('highlight-active');
-    };
 
     window.showProfile = (id) => {
         const item = window.directoryData.find(d => d.id === id);
