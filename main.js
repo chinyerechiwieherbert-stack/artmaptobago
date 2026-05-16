@@ -27,7 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentRegion = 'All';
     let currentCategory = 'All';
 
-    // View Switching Logic
+    // Run map initialization immediately on load to prevent rendering latency on Vercel
+    if (window.initMapIfNeeded) {
+        window.initMapIfNeeded();
+    }
+
+    // Explicit View Switching Logic
     window.switchView = (targetId) => {
         navBtns.forEach(btn => {
             if (btn.getAttribute('data-target') === targetId) {
@@ -49,12 +54,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.initMapIfNeeded) {
                 window.initMapIfNeeded();
             }
-            setTimeout(() => {
-                if (window.map) window.map.invalidateSize({ animate: false });
-            }, 200);
-            setTimeout(() => {
-                if (window.map) window.map.invalidateSize({ animate: false });
-            }, 600);
+            // Rapid intervals to guarantee Leaflet resizes properly inside flexible CSS grid view boxes
+            if (window.map) {
+                window.map.invalidateSize();
+                setTimeout(() => window.map.invalidateSize(), 50);
+                setTimeout(() => window.map.invalidateSize(), 150);
+                setTimeout(() => window.map.invalidateSize(), 400);
+            }
         }
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -67,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Filtering Event Listeners
+    // Filtering Setup
     regionTags.forEach(tag => {
         tag.addEventListener('click', () => {
             regionTags.forEach(t => t.classList.remove('active'));
@@ -93,11 +99,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function getPhotoHtml(item, extraStyle) {
+    function getPhotoHtml(item) {
         if (item.photo) {
-            return `<img src="${item.photo}" alt="${item.name}" class="card-img" ${extraStyle ? `style="${extraStyle}"` : ''} onerror="this.onerror=null;this.style.display='none';this.insertAdjacentHTML('afterend','<div class=\\'card-img-placeholder\\'>${item.name.charAt(0)}</div>')">`;
+            // Clean up image names to match file extensions exactly on Linux hosting environments
+            let standardizedPhoto = item.photo;
+            if (standardizedPhoto === "The Art Gallery.jpeg") {
+                standardizedPhoto = "The Art Gallery.jpeg";
+            }
+            return `<img src="${standardizedPhoto}" alt="${item.name}" class="card-img" onerror="this.onerror=null;this.style.display='none';this.insertAdjacentHTML('afterend','<div class=\\'card-img-placeholder\\'>${item.name.charAt(0)}</div>')">`;
         }
-        return `<div class="card-img-placeholder" ${extraStyle ? `style="${extraStyle}"` : ''}>${item.name.charAt(0)}</div>`;
+        return `<div class="card-img-placeholder">${item.name.charAt(0)}</div>`;
     }
 
     // Sidebar Directory Listing
@@ -115,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = document.createElement('div');
             card.className = 'directory-card';
             card.setAttribute('data-id', item.id);
-            card.style.animationDelay = `${index * 0.05}s`;
+            card.style.animationDelay = `${index * 0.02}s`;
             card.innerHTML = `
                 <div class="card-image-wrapper">
                     ${getPhotoHtml(item)}
@@ -143,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Full Pages Grids Rendering (Artists, Attractions, Festivals)
+    // Main Page Grid Systems (Artists, Attractions, Festivals Viewboxes)
     function renderGrids() {
         if (artistGrid) artistGrid.innerHTML = '';
         if (attractionsGrid) attractionsGrid.innerHTML = '';
@@ -255,7 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === modal) modal.classList.remove('active');
     });
 
-    // Run Initializations safely
+    // Build the grid views and sidebar lists seamlessly
     renderDirectory();
     renderGrids();
 });
