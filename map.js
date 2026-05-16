@@ -1,6 +1,5 @@
 let mapInstance;
 let markers = [];
-let hotspots = [];
 let mapInitialized = false;
 
 const categoryColors = {
@@ -26,7 +25,6 @@ function initMap() {
     const w = 5325;
     const h = 3525;
     
-    // Bounds are [bottom-left, top-right] in units
     const bounds = [[-h, 0], [0, w]];
 
     mapInstance = L.map('map', {
@@ -39,33 +37,57 @@ function initMap() {
         maxBoundsViscosity: 1.0
     });
 
-    // Updated to pull flat file from repository root
     L.imageOverlay('tobago_art_map.jpg', bounds).addTo(mapInstance);
-    
-    // Center the map
     mapInstance.fitBounds(bounds);
 
     window.map = mapInstance;
 
-    // Add Zoom controls
     L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
-}
 
-function getMarkerHtml(item) {
-    if (item.photo) {
-        return `<img src="${item.photo}" alt="${item.name}">`;
+    // Build interactive hotspots directly on map using calibrated layouts
+    if (window.directoryData) {
+        window.directoryData.forEach(item => {
+            if (item.box) {
+                const [bx, by, bw, bh] = item.box;
+                const rectBounds = [[-(by + bh), bx], [-by, bx + bw]];
+                
+                const hotspot = L.rectangle(rectBounds, {
+                    color: categoryColors[item.category] || '#2D6A4F',
+                    weight: 1.5,
+                    fillColor: categoryColors[item.category] || '#2D6A4F',
+                    fillOpacity: 0.15,
+                    className: 'map-marker'
+                }).addTo(mapInstance);
+
+                hotspot.bindTooltip(item.name, {
+                    className: 'premium-map-tooltip',
+                    direction: 'top',
+                    sticky: true
+                });
+
+                hotspot.bindPopup(`
+                    <div class="popup-premium">
+                        <h4>${item.name}</h4>
+                        <p>${item.area}</p>
+                        <button onclick="window.showProfile('${item.id}')">View Full Profile</button>
+                    </div>
+                `, {
+                    className: 'custom-popup-premium'
+                });
+
+                hotspot.on('click', () => {
+                    if (window.highlightInDirectory) {
+                        window.highlightInDirectory(item.id, true);
+                    }
+                });
+
+                markers.push({
+                    item: item,
+                    marker: hotspot
+                });
+            }
+        });
     }
-    return `<div class="marker-icon-fallback">${item.name.charAt(0)}</div>`;
-}
-
-function getPopupHtml(item) {
-    return `
-        <div class="popup-premium">
-            <h4>${item.name}</h4>
-            <p>${item.area}</p>
-            <button onclick="window.showProfile('${item.id}')">View Full Profile</button>
-        </div>
-    `;
 }
 
 // ── Public API ──
@@ -99,25 +121,21 @@ window.zoomToLocation = (id) => {
 
 window.highlightHotspot = (id) => {
     const entry = markers.find(m => m.item.id === id);
-    if (entry) {
+    if (entry && entry.marker) {
         entry.marker.setStyle({ 
-            radius: 12,
-            fillOpacity: 1, 
+            fillOpacity: 0.4,
             weight: 3
         });
-        entry.marker.openTooltip();
     }
 };
 
 window.unhighlightHotspot = (id) => {
     const entry = markers.find(m => m.item.id === id);
-    if (entry) {
+    if (entry && entry.marker) {
         entry.marker.setStyle({ 
-            radius: 8,
-            fillOpacity: 0.8,
-            weight: 2
+            fillOpacity: 0.15,
+            weight: 1.5
         });
-        entry.marker.closeTooltip();
     }
 };
 
