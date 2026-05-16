@@ -94,6 +94,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const categoryTags = document.querySelectorAll('#category-filters .tag');
     const modal = document.getElementById('profile-modal');
     const closeModalBtn = document.querySelector('.close-modal');
+
+    // --- MOBILE MENU TOGGLE LOGIC INTEGRATED HERE ---
+    const mobileToggle = document.querySelector('.mobile-toggle');
+    const mainNav = document.querySelector('.main-nav');
+
+    if (mobileToggle && mainNav) {
+        mobileToggle.addEventListener('click', () => {
+            mainNav.classList.toggle('mobile-active');
+        });
+    }
+    // ------------------------------------------------
     
     let currentRegion = 'All';
     let currentCategory = 'All';
@@ -102,6 +113,9 @@ document.addEventListener('DOMContentLoaded', () => {
     renderGrids();
 
     window.switchView = (targetId) => {
+        // Close the mobile menu automatically when a tab is selected
+        if (mainNav) mainNav.classList.remove('mobile-active');
+
         navBtns.forEach(btn => {
             if (btn.getAttribute('data-target') === targetId) {
                 btn.classList.add('active');
