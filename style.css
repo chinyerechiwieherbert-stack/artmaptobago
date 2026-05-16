@@ -471,14 +471,56 @@ h1, h2, h3, h4, h5, h6 {
 .card-img-placeholder { width: 65px; height: 65px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-green), var(--accent-green)); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; color: white; }
 .btn-primary { padding: 1rem 2rem; background: var(--primary-green); color: white; border: none; font-weight: 700; border-radius: var(--radius-md); cursor: pointer; text-transform: uppercase; }
 
+/* Mobile Menu Toggle Button (Hidden on Desktop) */
+.mobile-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  align-items: center;
+}
+
 @media (max-width: 1024px) {
   .modal-content { flex-direction: column; max-height: 90vh; }
   .modal-visual { height: 250px; }
   .top-filter-bar { gap: 1.5rem; padding: 1rem; }
 }
 
+/* Mobile Layout Rules */
 @media (max-width: 768px) {
-  .main-nav { display: none; }
+  .mobile-toggle { 
+    display: flex; 
+  }
+  
+  /* Convert the horizontal nav into a premium vertical dropdown */
+  .main-nav { 
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: var(--header-height);
+    left: 0;
+    width: 100%;
+    background-color: var(--primary-green);
+    flex-direction: column;
+    padding: 1rem 0;
+    box-shadow: var(--shadow-lg);
+    border-bottom: var(--border-strong);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  /* When the JS adds this class, the menu opens */
+  .main-nav.mobile-active {
+    display: flex;
+  }
+
+  /* Make the buttons huge and easy to tap on phones */
+  .nav-btn {
+    width: 100%;
+    padding: 1.2rem;
+    justify-content: center;
+    font-size: 1rem;
+  }
+
   .explore-container { flex-direction: column-reverse; }
   .directory-side { width: 100%; height: 40vh; }
 }
