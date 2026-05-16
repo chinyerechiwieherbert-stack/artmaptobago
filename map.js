@@ -17,14 +17,18 @@ const categoryColors = {
 
 function initMap() {
     if (mapInitialized) return;
-    mapInitialized = true;
-
+    
     const mapContainer = document.getElementById('map');
     if (!mapContainer) return;
 
+    // Ensure the container has dimensions before initialization
+    if (mapContainer.clientHeight === 0) {
+        mapContainer.style.minHeight = "400px"; 
+    }
+
+    mapInitialized = true;
     const w = 5325;
     const h = 3525;
-    
     const bounds = [[-h, 0], [0, w]];
 
     mapInstance = L.map('map', {
@@ -44,8 +48,8 @@ function initMap() {
 
     L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
 
-    // Build interactive hotspots directly on map using calibrated layouts
-    if (window.directoryData) {
+    // Build interactive hotspots safely
+    if (window.directoryData && Array.isArray(window.directoryData)) {
         window.directoryData.forEach(item => {
             if (item.box) {
                 const [bx, by, bw, bh] = item.box;
@@ -96,8 +100,9 @@ window.initMapIfNeeded = () => {
 };
 
 window.zoomToLocation = (id) => {
+    if (!mapInstance || !window.directoryData) return;
     const item = window.directoryData.find(d => d.id === id);
-    if (!item || !mapInstance) return;
+    if (!item) return;
 
     let target;
     let zoomLevel = 0;
