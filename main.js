@@ -1,3 +1,17 @@
+// Shared category colors directly accessible within main.js
+const categoryColors = {
+    'Artists': '#2D6A4F',
+    'Museums': '#D62828',
+    'Galleries': '#D62828',
+    'Heritage': '#D62828',
+    'Nature': '#0077B6',
+    'Cultural Sites': '#E0A96D',
+    'Creative Businesses': '#2D6A4F',
+    'Workshops': '#2D6A4F',
+    'Festivals': '#E0A96D',
+    'Public Art': '#2D6A4F'
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     const navBtns = document.querySelectorAll('.nav-btn');
     const views = document.querySelectorAll('.view-section');
@@ -13,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentRegion = 'All';
     let currentCategory = 'All';
 
-    // View Switching
+    // View Switching Logic
     window.switchView = (targetId) => {
         navBtns.forEach(btn => {
             if (btn.getAttribute('data-target') === targetId) {
@@ -32,11 +46,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (targetId === 'map-view') {
-            // Lazy-init or refresh the map when the view becomes visible
             if (window.initMapIfNeeded) {
                 window.initMapIfNeeded();
             }
-            // Belt-and-suspenders: force resize after the CSS transition completes
             setTimeout(() => {
                 if (window.map) window.map.invalidateSize({ animate: false });
             }, 200);
@@ -45,7 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 600);
         }
 
-        // Scroll to top
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -56,11 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Initialize Content
-    renderDirectory();
-    renderGrids();
-
-    // Filtering Logic
+    // Filtering Event Listeners
     regionTags.forEach(tag => {
         tag.addEventListener('click', () => {
             regionTags.forEach(t => t.classList.remove('active'));
@@ -93,6 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return `<div class="card-img-placeholder" ${extraStyle ? `style="${extraStyle}"` : ''}>${item.name.charAt(0)}</div>`;
     }
 
+    // Sidebar Directory Listing
     function renderDirectory() {
         if (!directoryList) return;
         directoryList.innerHTML = '';
@@ -124,7 +132,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             card.addEventListener('click', () => openModal(item));
             
-            // Map synchronization: hover on card highlights map box
             card.addEventListener('mouseenter', () => {
                 if (window.highlightHotspot) window.highlightHotspot(item.id);
             });
@@ -136,23 +143,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-
-
+    // Full Pages Grids Rendering (Artists, Attractions, Festivals)
     function renderGrids() {
-        artistGrid.innerHTML = '';
-        attractionsGrid.innerHTML = '';
+        if (artistGrid) artistGrid.innerHTML = '';
+        if (attractionsGrid) attractionsGrid.innerHTML = '';
         if (festivalsGrid) festivalsGrid.innerHTML = '';
+
+        if (!window.directoryData) return;
 
         window.directoryData.forEach(item => {
             const card = createGridCard(item);
 
-            if (item.category === 'Artists') {
+            if (item.category === 'Artists' && artistGrid) {
                 artistGrid.appendChild(card);
-            } else if (['Museums', 'Galleries', 'Heritage', 'Nature', 'Cultural Sites', 'Creative Businesses', 'Workshops', 'Public Art'].includes(item.category)) {
+            } else if (['Museums', 'Galleries', 'Heritage', 'Nature', 'Cultural Sites', 'Creative Businesses', 'Workshops', 'Public Art'].includes(item.category) && attractionsGrid) {
                 const clone = createGridCard(item);
                 attractionsGrid.appendChild(clone);
-            }
-            if (item.category === 'Festivals' && festivalsGrid) {
+            } else if (item.category === 'Festivals' && festivalsGrid) {
                 const clone = createGridCard(item);
                 festivalsGrid.appendChild(clone);
             }
@@ -209,12 +216,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         modal.classList.add('active');
 
-        // Close when clicking "View on Map"
         document.getElementById('btn-view-on-map').onclick = () => {
             modal.classList.remove('active');
             switchView('map-view');
             
-            // Give the view time to switch before zooming
             setTimeout(() => {
                 if (window.zoomToLocation) {
                     window.zoomToLocation(item.id);
@@ -223,17 +228,12 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // Highlight and scroll to a directory card
     window.highlightInDirectory = (id, scroll = true) => {
-        // Find the card in the list
         const targetCard = document.querySelector(`.directory-card[data-id="${id}"]`);
-
         if (targetCard) {
             if (scroll) {
                 targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
-            
-            // Add highlight class
             targetCard.classList.add('highlight-active');
         }
     };
@@ -245,14 +245,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Expose openModal to window so map can call it
     window.showProfile = (id) => {
         const item = window.directoryData.find(d => d.id === id);
         if (item) openModal(item);
     };
 
-    closeModalBtn.addEventListener('click', () => modal.classList.remove('active'));
-    modal.addEventListener('click', (e) => {
+    if (closeModalBtn) closeModalBtn.addEventListener('click', () => modal.classList.remove('active'));
+    if (modal) modal.addEventListener('click', (e) => {
         if (e.target === modal) modal.classList.remove('active');
     });
+
+    // Run Initializations safely
+    renderDirectory();
+    renderGrids();
 });
