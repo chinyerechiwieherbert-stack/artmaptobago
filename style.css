@@ -487,10 +487,54 @@ h1, h2, h3, h4, h5, h6 {
   .top-filter-bar { gap: 1.5rem; padding: 1rem; }
 }
 
-/* Mobile Layout Rules */
-@media (max-width: 768px) {
+/@media (max-width: 768px) {
   .mobile-toggle { 
     display: flex; 
+  }
+  
+  .main-nav { 
+    display: none; 
+    position: absolute;
+    top: var(--header-height);
+    left: 0;
+    width: 100%;
+    background-color: var(--primary-green);
+    flex-direction: column;
+    padding: 1rem 0;
+    box-shadow: var(--shadow-lg);
+    border-bottom: var(--border-strong);
+    border-color: rgba(255, 255, 255, 0.1);
+    z-index: 1001;
+  }
+
+  .main-nav.mobile-active {
+    display: flex;
+  }
+
+  .nav-btn {
+    width: 100%;
+    padding: 1.2rem;
+    justify-content: center;
+    font-size: 1rem;
+  }
+
+  /* CRITICAL FIX: Force the map and directory to take up exactly half the screen each */
+  .explore-container { 
+    flex-direction: column-reverse; 
+    height: auto; 
+  }
+  
+  .directory-side { 
+    width: 100%; 
+    height: 45vh; 
+  }
+  
+  .map-side { 
+    width: 100%; 
+    height: 55vh; 
+    min-height: 400px; 
+  }
+}
   }
   
   /* Convert the horizontal nav into a premium vertical dropdown */
