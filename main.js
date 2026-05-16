@@ -1,4 +1,4 @@
-// Global Configuration Objects
+// ── 1. GLOBAL PALETTE CONFIGURATIONS ──
 const categoryColors = {
     'Artists': '#2D6A4F',
     'Museums': '#D62828',
@@ -18,7 +18,7 @@ const MAP_W = 5325;
 const MAP_H = 3525;
 const mapBounds = [[-MAP_H, 0], [0, MAP_W]];
 
-// ── FIXED SPLIT-VIEW MAP INITIALIZATION ENGINE ──
+// ── 2. CORE MAP LIFECYCLE INITIALIZER ──
 function initMap() {
     if (mapInitialized) {
         if (mapInstance) mapInstance.invalidateSize({ animate: false });
@@ -28,7 +28,7 @@ function initMap() {
     const mapContainer = document.getElementById('map');
     if (!mapContainer) return;
 
-    // Safety fallback: if map element has no physical dimensions layout calculations yet, pause
+    // Safety fallback: if the map element is still unrendered (0 width/height), wait for tab visibility
     if (mapContainer.clientWidth === 0 || mapContainer.clientHeight === 0) return;
 
     mapInitialized = true;
@@ -37,42 +37,50 @@ function initMap() {
         crs: L.CRS.Simple,
         minZoom: -3,
         maxZoom: 1,
-        zoomControl: false,
+        zoomControl: false, 
         attributionControl: false,
         maxBounds: mapBounds,
         maxBoundsViscosity: 1.0
     });
 
-    // Reference the root image file directly from repository root
+    // Reference the high-res map file in your flat repository root
     L.imageOverlay('tobago_art_map.jpg', mapBounds).addTo(mapInstance);
     
     // Default initial frame: display the entire map artwork centered neatly
     mapInstance.setView([-MAP_H / 2, MAP_W / 2], -2);
     window.map = mapInstance;
 
-    // Place default zoom control keys in position safely
+    // Place the default Leaflet zoom controls cleanly in the bottom right corner
     L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
 }
 
-// ── ROBUST COORD GEOMETRY ZOOM ENGINE ──
+// ── 3. ACCURATE DIRECTORY SIDEBAR FOCUS SNAPPING ENGINE ──
 window.zoomToLocation = (id) => {
     if (!mapInstance || !window.directoryData) return;
     const item = window.directoryData.find(d => d.id === id);
-    if (!item || !item.dot) return;
+    if (!item) return;
 
-    // Coordinates match [X, Y] array indexes precisely
-    const targetX = item.dot[0];
-    const targetY = item.dot[1];
+    let target = null;
+    let zoomLevel = -0.5; // Framed comfort zoom level to clearly display the name text label
 
-    // Map targets inside Leaflet Cartesian workspace grid lines
-    const fixedLatLng = [-targetY, targetX];
-    
-    // Zoom -0.5 frames close focus perfectly over text nodes
-    mapInstance.setView(fixedLatLng, -0.5);
+    if (item.dot) {
+        // Data coordinates map to [Horizontal X, Vertical Y]
+        const [x, y] = item.dot;
+        target = [-y, x]; // Translated into negative Cartesian grid space
+    } else if (item.box) {
+        const [bx, by, bw, bh] = item.box;
+        const cx = bx + (bw / 2);
+        const cy = by + (bh / 2);
+        target = [-cy, cx];
+    }
+
+    if (target) {
+        mapInstance.setView(target, zoomLevel);
+    }
 };
 
 
-// ── ENGINE CONTROLLER ROUTER ──
+// ── 4. MULTI-TAB ROUTER AND INTERFACE CONTROLLER ──
 document.addEventListener('DOMContentLoaded', () => {
     const navBtns = document.querySelectorAll('.nav-btn');
     const views = document.querySelectorAll('.view-section');
@@ -88,11 +96,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentRegion = 'All';
     let currentCategory = 'All';
 
-    // Populate data listings immediately on thread initialization
+    // Populate data matrices into standard directory lists instantly on page mount
     renderDirectory();
     renderGrids();
 
-    // Re-synchronized View Switcher
+    // FIXED: Corrected the typo here so section hiding functions smoothly without crashing
     window.switchView = (targetId) => {
         navBtns.forEach(btn => {
             if (btn.getAttribute('data-target') === targetId) {
@@ -106,23 +114,23 @@ document.addEventListener('DOMContentLoaded', () => {
             if (view.id === targetId) {
                 view.classList.remove('hidden');
             } else {
-                view.view-section.classList.add('hidden');
+                view.classList.add('hidden');
             }
         });
 
+        // Recalculate dimensions across stepped intervals to eliminate the grey box quirk
         if (targetId === 'map-view') {
-            // Recalculate dimensions across delayed intervals to clear layout paint latency
             initMap();
             setTimeout(() => initMap(), 50);
             setTimeout(() => {
                 if (mapInstance) {
                     mapInstance.invalidateSize({ animate: false });
-                    mapInstance.setView([-MAP_H / 2, MAP_W / 2], -2);
+                    mapInstance.setView([-MAP_H / 2, MAP_W / 2], -2); // Default overview frame lock
                 }
             }, 150);
             setTimeout(() => {
                 if (mapInstance) mapInstance.invalidateSize({ animate: false });
-            }, 400);
+            }, 450);
         }
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -135,6 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Filtering Event Handlers
     regionTags.forEach(tag => {
         tag.addEventListener('click', () => {
             regionTags.forEach(t => t.classList.remove('active'));
@@ -284,8 +293,8 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    closeModalBtn.addEventListener('click', () => modal.classList.remove('active'));
-    modal.addEventListener('click', (e) => {
+    if (closeModalBtn) closeModalBtn.addEventListener('click', () => modal.classList.remove('active'));
+    if (modal) modal.addEventListener('click', (e) => {
         if (e.target === modal) modal.classList.remove('active');
     });
 });
