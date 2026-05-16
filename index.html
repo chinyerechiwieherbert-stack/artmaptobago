@@ -34,52 +34,43 @@
 </header>
 
 <!-- HOME -->
-<div id="home-view" class="view-section">
+<section class="heritage-preview">
+    <div class="section-container">
 
-    <section class="immersive-hero">
+        <div class="heritage-grid">
 
-        <!-- FIX: safe root-level image reference -->
-        <div class="parallax-layer layer-bg">
-            <img src="tobago_art_map.jpg" alt="Tobago Art Map Background" class="hero-map-img">
-        </div>
+            <div class="heritage-text">
 
-        <div class="parallax-layer layer-water"></div>
+                <span class="eyebrow">The Collection</span>
 
-        <div class="parallax-layer layer-clouds">
-            <div class="cloud cloud-1"></div>
-            <div class="cloud cloud-2"></div>
-            <div class="cloud cloud-3"></div>
-        </div>
+                <h2>Preserving the<br>Creative Pulse</h2>
 
-        <div class="hero-overlay">
-            <div class="hero-content-wrapper">
-                <h1 class="hero-title-main">Art Map Tobago</h1>
-                <p class="hero-tagline">A Living Interactive Cultural Atlas</p>
+                <p>
+                    The Tobago Art Map is more than a guide—it's a celebration of our island's vibrant creative ecosystem. 
+                    From the oldest protected rainforest in the Western Hemisphere to the bustling galleries of Scarborough, 
+                    explore the people and places that define our culture.
+                </p>
 
-                <div class="hero-actions">
-                    <button class="btn-enter" onclick="switchView('map-view')">
-                        Explore the Island
-                    </button>
+                <div class="download-cta-group">
+
+                    <a href="tobago_art_map.jpg" download>
+                        Download Map Side<br>
+                        <small>High-Res Artwork</small>
+                    </a>
+
+                    <a href="tobago_art_map_info.jpg" download>
+                        Download Directory Side<br>
+                        <small>Artist & Site Index</small>
+                    </a>
+
                 </div>
+
             </div>
+
         </div>
 
-    </section>
-
-    <!-- DOWNLOAD FIXED -->
-    <section class="heritage-preview">
-
-        <a href="tobago_art_map.jpg" download>
-            Download Map Side (High Res)
-        </a>
-
-        <a href="tobago_art_map_info.jpg" download>
-            Download Directory Side
-        </a>
-
-    </section>
-
-</div>
+    </div>
+</section>
 
 <!-- MAP VIEW -->
 <div id="map-view" class="view-section hidden">
@@ -135,3 +126,12 @@ window.addEventListener("load", () => {
 
 </body>
 </html>
+<script>
+window.addEventListener("load", function () {
+    if (typeof initMap === "function") {
+        initMap();
+    } else {
+        console.error("initMap not found - check map.js");
+    }
+});
+</script>
