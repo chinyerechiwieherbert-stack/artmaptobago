@@ -15,7 +15,7 @@ let mapInstance;
 let markers = [];
 let mapInitialized = false;
 
-// ── FIXED LEAFLET SIMPLIFIED PIXEL MAPPING ENGINE ──
+// ── RECONFIGURED TEXT-NODE CIRCULAR OVERLAY ENGINE ──
 function initMap() {
     if (mapInitialized) return;
     
@@ -43,33 +43,30 @@ function initMap() {
 
     L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
 
-    // Build map hotspots with inverted Leaflet math parameters
+    // Apply interactive hot-circle markers over text locations
     if (window.directoryData && Array.isArray(window.directoryData)) {
         window.directoryData.forEach(item => {
-            if (item.box) {
-                const [bx, by, bw, bh] = item.box;
+            if (item.dot) {
+                const [x, y] = item.dot;
                 
-                // CRITICAL CORRECTION: In CRS.Simple, the top edge of the box 
-                // must be calculated relative to the absolute top anchor (0).
-                // Top-Left corner is [ -by, bx ]
-                // Bottom-Right corner is [ -(by + bh), bx + bw ]
-                const rectBounds = [[-(by + bh), bx], [-by, bx + bw]];
-                
-                const hotspot = L.rectangle(rectBounds, {
+                // Draw a beautiful, clean target ring directly centered over the item's text node
+                const circleOverlay = L.circleMarker([-y, x], {
+                    radius: 12,
                     color: categoryColors[item.category] || '#2D6A4F',
-                    weight: 1.5,
+                    weight: 2,
                     fillColor: categoryColors[item.category] || '#2D6A4F',
-                    fillOpacity: 0.12,
-                    className: 'map-marker'
+                    fillOpacity: 0.25,
+                    className: 'map-marker pulse-marker'
                 }).addTo(mapInstance);
 
-                hotspot.bindTooltip(item.name, {
+                circleOverlay.bindTooltip(item.name, {
                     className: 'premium-map-tooltip',
                     direction: 'top',
-                    sticky: true
+                    offset: [0, -10],
+                    sticky: false
                 });
 
-                hotspot.bindPopup(`
+                circleOverlay.bindPopup(`
                     <div class="popup-premium">
                         <h4>${item.name}</h4>
                         <p>${item.area}</p>
@@ -79,7 +76,7 @@ function initMap() {
                     className: 'custom-popup-premium'
                 });
 
-                hotspot.on('click', () => {
+                circleOverlay.on('click', () => {
                     if (window.highlightInDirectory) {
                         window.highlightInDirectory(item.id, true);
                     }
@@ -87,7 +84,7 @@ function initMap() {
 
                 markers.push({
                     item: item,
-                    marker: hotspot
+                    marker: circleOverlay
                 });
             }
         });
@@ -97,35 +94,28 @@ function initMap() {
 window.zoomToLocation = (id) => {
     if (!mapInstance || !window.directoryData) return;
     const item = window.directoryData.find(d => d.id === id);
-    if (!item) return;
+    if (!item || !item.dot) return;
 
-    let target;
-    let zoomLevel = 0;
-
-    if (item.box) {
-        const [bx, by, bw, bh] = item.box;
-        const cx = bx + (bw / 2);
-        const cy = by + (bh / 2);
-        target = [-cy, cx];
-        zoomLevel = 0.5; 
-    }
-
-    if (target) {
-        mapInstance.flyTo(target, zoomLevel, { duration: 1.5 });
-    }
+    const [x, y] = item.dot;
+    const target = [-y, x];
+    
+    // Smooth cinematic zoom directly onto the centered text label
+    mapInstance.flyTo(target, 0.5, { duration: 1.5 });
 };
 
 window.highlightHotspot = (id) => {
     const entry = markers.find(m => m.item.id === id);
     if (entry && entry.marker) {
-        entry.marker.setStyle({ fillOpacity: 0.35, weight: 2.5 });
+        entry.marker.setStyle({ radius: 18, fillOpacity: 0.5, weight: 3 });
+        entry.marker.openTooltip();
     }
 };
 
 window.unhighlightHotspot = (id) => {
     const entry = markers.find(m => m.item.id === id);
     if (entry && entry.marker) {
-        entry.marker.setStyle({ fillOpacity: 0.12, weight: 1.5 });
+        entry.marker.setStyle({ radius: 12, fillOpacity: 0.25, weight: 2 });
+        entry.marker.closeTooltip();
     }
 };
 
@@ -158,7 +148,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentRegion = 'All';
     let currentCategory = 'All';
 
-    // Force rendering sequence initialization loop
     initMap();
     setTimeout(() => { initMap(); }, 200);
 
