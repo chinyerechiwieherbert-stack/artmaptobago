@@ -1037,3 +1037,24 @@ h1, h2, h3, h4, h5, h6 {
   .hero-tagline { font-size: 1.1rem; }
   .heritage-grid { grid-template-columns: 1fr; gap: 2rem; }
 }
+.explore-container {
+    display: flex !important;
+    height: 100vh;
+}
+
+.directory-side {
+    width: 300px !important;
+    min-width: 300px;
+    background: white;
+    overflow-y: auto;
+    border-right: 1px solid #ddd;
+}
+
+.map-side {
+    flex: 1;
+}
+
+#map {
+    height: 100%;
+    width: 100%;
+}
