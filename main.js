@@ -1,4 +1,4 @@
-// Global Configuration Objects
+// Shared UI Configurations
 const categoryColors = {
     'Artists': '#2D6A4F',
     'Museums': '#D62828',
@@ -18,7 +18,7 @@ const MAP_W = 5325;
 const MAP_H = 3525;
 const mapBounds = [[-MAP_H, 0], [0, MAP_W]];
 
-// ── FIXED MAP INITIALIZATION FUNCTION ──
+// ── FLUID GEOMETRY MAP INITIALIZER ──
 function initMap() {
     if (mapInitialized) {
         if (mapInstance) mapInstance.invalidateSize({ animate: false });
@@ -28,7 +28,7 @@ function initMap() {
     const mapContainer = document.getElementById('map');
     if (!mapContainer) return;
 
-    // Safety fallback: if the map container is hidden or zero-sized, wait
+    // Safety check: ensure container layout holds visibility before initialization
     if (mapContainer.clientWidth === 0 || mapContainer.clientHeight === 0) return;
 
     mapInitialized = true;
@@ -43,22 +43,35 @@ function initMap() {
         maxBoundsViscosity: 1.0
     });
 
-    // Clean flat path pointing directly to your root image file on GitHub
+    // Clean flat path mapping directly into root repository asset context
     L.imageOverlay('tobago_art_map.jpg', mapBounds).addTo(mapInstance);
     
-    // Default initial frame: show the whole map cleanly centered
+    // Default initial frame position
     mapInstance.setView([-1762.5, 2662.5], -2);
     window.map = mapInstance;
 }
 
-// ── FIXED ZOOM TO LOCATION FUNCTION ──
+// ── MANUAL HEADER PANEL CONTROLS ──
+window.manualZoomIn = () => {
+    if (mapInstance) mapInstance.zoomIn(0.5);
+};
+
+window.manualZoomOut = () => {
+    if (mapInstance) mapInstance.zoomOut(0.5);
+};
+
+window.resetMapFrame = () => {
+    if (mapInstance) mapInstance.setView([-1762.5, 2662.5], -2);
+};
+
+// Precise Point Locator Axis Fix
 window.zoomToLocation = (id) => {
     if (!mapInstance || !window.directoryData) return;
     const item = window.directoryData.find(d => d.id === id);
     if (!item) return;
 
     let target = null;
-    let zoomLevel = -0.5; // Clean, framed zoom scale close to the text labels
+    let zoomLevel = -0.5; // Framed zoom view level depth
 
     if (item.dot) {
         const [x, y] = item.dot;
@@ -75,21 +88,8 @@ window.zoomToLocation = (id) => {
     }
 };
 
-// ── MANUAL CONTROL BAR BUTTON ACTIONS ──
-window.manualZoomIn = () => {
-    if (mapInstance) mapInstance.zoomIn(0.5);
-};
 
-window.manualZoomOut = () => {
-    if (mapInstance) mapInstance.zoomOut(0.5);
-};
-
-window.resetMapFrame = () => {
-    if (mapInstance) mapInstance.setView([-1762.5, 2662.5], -2);
-};
-
-
-// ── CORE CONTROLLER LAYER ──
+// ── APPLICATION INTERFACE CONTROLLER LAYER ──
 document.addEventListener('DOMContentLoaded', () => {
     const navBtns = document.querySelectorAll('.nav-btn');
     const views = document.querySelectorAll('.view-section');
@@ -105,11 +105,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentRegion = 'All';
     let currentCategory = 'All';
 
-    // Render list contents immediately on start
+    // Populate components immediately inside background engine stack
     renderDirectory();
     renderGrids();
 
-    // Re-synchronized View Switcher
     window.switchView = (targetId) => {
         navBtns.forEach(btn => {
             if (btn.getAttribute('data-target') === targetId) {
@@ -128,17 +127,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (targetId === 'map-view') {
-            // Force rendering intervals to ensure Leaflet captures layout geometry perfectly
-            initMap();
+            // Give layout views a fractional delay to resolve styles before building map
             setTimeout(() => {
                 initMap();
             }, 50);
             setTimeout(() => {
                 if (mapInstance) mapInstance.invalidateSize({ animate: false });
-            }, 150);
+                window.resetMapFrame();
+            }, 200);
             setTimeout(() => {
                 if (mapInstance) mapInstance.invalidateSize({ animate: false });
-            }, 400);
+            }, 500);
         }
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
