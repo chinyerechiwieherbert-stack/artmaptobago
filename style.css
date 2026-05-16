@@ -1039,19 +1039,23 @@ h1, h2, h3, h4, h5, h6 {
 }
 .explore-container {
     display: flex !important;
+    width: 100%;
     height: 100vh;
 }
 
 .directory-side {
-    width: 300px !important;
-    min-width: 300px;
-    background: white;
+    width: 320px !important;
+    min-width: 320px !important;
+    max-width: 320px !important;
+    background: #fff;
     overflow-y: auto;
     border-right: 1px solid #ddd;
+    z-index: 10;
 }
 
 .map-side {
-    flex: 1;
+    flex: 1 !important;
+    height: 100vh;
 }
 
 #map {
