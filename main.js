@@ -1,4 +1,4 @@
-// 1. CONFIGURATION OBJECTS MUST BE AT THE VERY TOP TO PREVENT INITIALIZATION CRASHES
+// Global Asset Category Colors
 const categoryColors = {
     'Artists': '#2D6A4F',
     'Museums': '#D62828',
@@ -18,18 +18,22 @@ const MAP_W = 5325;
 const MAP_H = 3525;
 const mapBounds = [[-MAP_H, 0], [0, MAP_W]];
 
-// ── TWO-STAGE RESIZE-SAFE INITIALIZATION ENGINE ──
+// ── ROBUST RESIZE-SAFE INITIALIZATION ENGINE ──
 function initMap() {
-    if (mapInitialized) {
-        if (mapInstance) mapInstance.invalidateSize({ animate: false });
-        return;
-    }
-
     const mapContainer = document.getElementById('map');
     if (!mapContainer) return;
 
-    // Safety constraint: Wait if the browser hasn't calculated dimensions yet
-    if (mapContainer.clientWidth === 0 || mapContainer.clientHeight === 0) return;
+    // PROTECTION LINK: If container layout doesn't hold physical dimensions yet, halt
+    if (mapContainer.clientWidth === 0 || mapContainer.clientHeight === 0) {
+        return;
+    }
+
+    if (mapInitialized) {
+        if (mapInstance) {
+            mapInstance.invalidateSize({ animate: false });
+        }
+        return;
+    }
 
     mapInitialized = true;
 
@@ -37,50 +41,39 @@ function initMap() {
         crs: L.CRS.Simple,
         minZoom: -3,
         maxZoom: 1,
-        zoomControl: false, // We'll rely on double click and scroll zoom
+        zoomControl: false,
         attributionControl: false,
         maxBounds: mapBounds,
         maxBoundsViscosity: 1.0
     });
 
-    // Pointing directly to the root image file on your flat GitHub repository
+    // Loading flat root image directly from your master repository layer
     L.imageOverlay('tobago_art_map.jpg', mapBounds).addTo(mapInstance);
     
-    // Auto-fit your high-res map artwork neatly on screen canvas bounds
-    mapInstance.fitBounds(mapBounds);
+    // Position map flat canvas overview directly centered on the screen box frame layout
+    mapInstance.setView([-MAP_H / 2, MAP_W / 2], -2);
     window.map = mapInstance;
-    
-    // Add standard default zoom control back to the bottom right area safely
-    L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
 }
 
-// ── RELIABLE LOCATION CENTER FOCUS ENGINE ──
+// ── POINT RE-CENTER ZOOM ENGINE ──
 window.zoomToLocation = (id) => {
     if (!mapInstance || !window.directoryData) return;
     const item = window.directoryData.find(d => d.id === id);
-    if (!item) return;
+    if (!item || !item.dot) return;
 
-    let target = null;
-    let zoomLevel = -0.5; // Comfortable, crisp close-up zoom frame context
+    // Horizontal coordinate is array index 0, vertical is array index 1
+    const targetX = item.dot[0];
+    const targetY = item.dot[1];
 
-    if (item.dot) {
-        // Data structure format is [Horizontal X, Vertical Y]
-        const [x, y] = item.dot;
-        target = [-y, x]; // LatLng conversion maps to [-Y, X] in Simple CRS space bounds
-    } else if (item.box) {
-        const [bx, by, bw, bh] = item.box;
-        const cx = bx + (bw / 2);
-        const cy = by + (bh / 2);
-        target = [-cy, cx];
-    }
-
-    if (target) {
-        mapInstance.setView(target, zoomLevel);
-    }
+    // Map inverted coordinates right inside negative Leaflet CRS.Simple grid lines
+    const centerPoint = [-targetY, targetX];
+    
+    // Zoom -0.5 brings the frame directly into tight focus over the artist's typographic text entry
+    mapInstance.setView(centerPoint, -0.5);
 };
 
 
-// ── CORE APPLICATION DISPLAY LAYER CONTROLLER ──
+// ── APPLICATION USER CONTEXT CONTROLLER LAYER ──
 document.addEventListener('DOMContentLoaded', () => {
     const navBtns = document.querySelectorAll('.nav-btn');
     const views = document.querySelectorAll('.view-section');
@@ -96,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentRegion = 'All';
     let currentCategory = 'All';
 
-    // Build standalone structural lists instantly
+    // Build standalone displays and components seamlessly
     renderDirectory();
     renderGrids();
 
@@ -118,15 +111,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (targetId === 'map-view') {
-            // Trigger layout recalculation loop intervals to resolve sizing lag completely
+            // Sequence block intervals to force rendering parameters once container is active
             initMap();
-            setTimeout(() => {
-                initMap();
-            }, 50);
+            setTimeout(() => initMap(), 50);
             setTimeout(() => {
                 if (mapInstance) {
                     mapInstance.invalidateSize({ animate: false });
-                    mapInstance.fitBounds(mapBounds);
+                    mapInstance.setView([-MAP_H / 2, MAP_W / 2], -2);
                 }
             }, 150);
             setTimeout(() => {
