@@ -28,7 +28,6 @@ function initMap() {
     const mapContainer = document.getElementById('map');
     if (!mapContainer) return;
 
-    // We removed the aggressive 0-width block here so it never silently aborts!
     mapInitialized = true;
 
     mapInstance = L.map('map', {
@@ -57,18 +56,29 @@ window.zoomToLocation = (id) => {
     let target = null;
     let zoomLevel = -0.5;
 
-    if (item.dot) {
-        const [x, y] = item.dot;
-        target = [-y, x];
-    } else if (item.box) {
+    if (item.box) {
         const [bx, by, bw, bh] = item.box;
         const cx = bx + (bw / 2);
         const cy = by + (bh / 2);
         target = [-cy, cx];
+    } else if (item.dot) {
+        const [x, y] = item.dot;
+        target = [-y, x];
     }
 
     if (target) {
         mapInstance.setView(target, zoomLevel);
+    }
+
+    // NEW: Automatically scroll the window up to the map when clicking a deep sidebar item!
+    const mapSection = document.getElementById('map-view');
+    if (mapSection && !mapSection.classList.contains('hidden')) {
+        const offset = 80; // Accounts for your sticky header height
+        const elementPosition = mapSection.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({
+            top: elementPosition - offset,
+            behavior: 'smooth'
+        });
     }
 };
 
@@ -110,7 +120,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (targetId === 'map-view') {
-            // Give the browser 100ms to paint the new tab, then forcefully build and size the map
             setTimeout(() => {
                 initMap();
                 if (mapInstance) {
@@ -119,7 +128,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }, 100);
             
-            // Secondary safety check
             setTimeout(() => {
                 if (mapInstance) mapInstance.invalidateSize({ animate: false });
             }, 400);
