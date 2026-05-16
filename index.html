@@ -85,37 +85,36 @@
     </div>
 
     <div id="map-view" class="view-section hidden">
+        <div class="top-filter-bar">
+            <div class="horizontal-filter-group">
+                <span class="filter-label">Region:</span>
+                <div class="filter-tags" id="region-filters">
+                    <span class="tag active" data-region="All">All Regions</span>
+                    <span class="tag" data-region="Southwest">Southwest</span>
+                    <span class="tag" data-region="Scarborough/Central">Scarborough</span>
+                    <span class="tag" data-region="Western Coast">Western</span>
+                    <span class="tag" data-region="North Coast & Windward">Northern</span>
+                </div>
+            </div>
+            <div class="horizontal-filter-group">
+                <span class="filter-label">Category:</span>
+                <div class="filter-tags" id="category-filters">
+                    <span class="tag active" data-category="All">All Elements</span>
+                    <span class="tag" data-category="Artists">Artists</span>
+                    <span class="tag" data-category="Museums">Museums</span>
+                    <span class="tag" data-category="Galleries">Galleries</span>
+                    <span class="tag" data-category="Heritage">Heritage</span>
+                    <span class="tag" data-category="Festivals">Festivals</span>
+                    <span class="tag" data-category="Nature">Nature</span>
+                    <span class="tag" data-category="Creative Businesses">Business</span>
+                    <span class="tag" data-category="Workshops">Workshops</span>
+                </div>
+            </div>
+        </div>
+
         <div class="explore-container">
             <aside class="directory-side">
-                <div class="directory-header">
-                    <h2>Directory</h2>
-                    <div class="filter-group">
-                        <span class="filter-label">Filter by Region</span>
-                        <div class="filter-tags" id="region-filters">
-                            <span class="tag active" data-region="All">All</span>
-                            <span class="tag" data-region="Southwest">Southwest</span>
-                            <span class="tag" data-region="Scarborough/Central">Scarborough</span>
-                            <span class="tag" data-region="Western Coast">Western</span>
-                            <span class="tag" data-region="North Coast & Windward">Northern</span>
-                        </div>
-                    </div>
-                    <div class="filter-group">
-                        <span class="filter-label">Filter by Category</span>
-                        <div class="filter-tags" id="category-filters">
-                            <span class="tag active" data-category="All">All</span>
-                            <span class="tag" data-category="Artists">Artists</span>
-                            <span class="tag" data-category="Museums">Museums</span>
-                            <span class="tag" data-category="Galleries">Galleries</span>
-                            <span class="tag" data-category="Heritage">Heritage</span>
-                            <span class="tag" data-category="Festivals">Festivals</span>
-                            <span class="tag" data-category="Nature">Nature</span>
-                            <span class="tag" data-category="Creative Businesses">Business</span>
-                            <span class="tag" data-category="Workshops">Workshops</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="directory-list" id="directory-list">
-                    </div>
+                <div class="directory-list" id="directory-list"></div>
             </aside>
 
             <main class="map-side">
@@ -126,21 +125,18 @@
 
     <div id="artists-view" class="view-section hidden" style="padding: 4rem 2rem;">
         <h2 style="font-size: 3rem; text-align: center; margin-bottom: 3rem; color: var(--primary-green);">Artist Directory</h2>
-        <div id="artist-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto;">
-            </div>
+        <div id="artist-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto;"></div>
     </div>
 
     <div id="attractions-view" class="view-section hidden" style="padding: 4rem 2rem;">
         <h2 style="font-size: 3rem; text-align: center; margin-bottom: 3rem; color: var(--primary-green);">Attractions & Heritage</h2>
-        <div id="attractions-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto;">
-            </div>
+        <div id="attractions-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto;"></div>
     </div>
 
     <div id="festivals-view" class="view-section hidden" style="padding: 4rem 2rem;">
         <h2 style="font-size: 3rem; text-align: center; margin-bottom: 3rem; color: var(--primary-green);">Festivals & Cultural Experiences</h2>
         <p style="text-align: center; max-width: 700px; margin: 0 auto 3rem; font-size: 1.1rem; color: var(--text-muted);">Tobago's vibrant calendar of festivals, competitions, and cultural traditions.</p>
-        <div id="festivals-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto;">
-            </div>
+        <div id="festivals-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto;"></div>
     </div>
 
     <div id="about-view" class="view-section hidden" style="padding: 6rem 2rem; align-items: center;">
