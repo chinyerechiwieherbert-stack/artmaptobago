@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tobago Art Map — Digital Hub</title>
 
-    <!-- Google Fonts -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
-    
-    <!-- FIXED: flat structure -->
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+    <!-- CSS (FLAT STRUCTURE FIX) -->
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -38,7 +38,7 @@
 
     <section class="immersive-hero">
 
-        <!-- FIXED: assets kept (this is correct since images are in repo root or assets folder) -->
+        <!-- FIX: safe root-level image reference -->
         <div class="parallax-layer layer-bg">
             <img src="tobago_art_map.jpg" alt="Tobago Art Map Background" class="hero-map-img">
         </div>
@@ -58,11 +58,24 @@
 
                 <div class="hero-actions">
                     <button class="btn-enter" onclick="switchView('map-view')">
-                        <span>Explore the Island</span>
+                        Explore the Island
                     </button>
                 </div>
             </div>
         </div>
+
+    </section>
+
+    <!-- DOWNLOAD FIXED -->
+    <section class="heritage-preview">
+
+        <a href="tobago_art_map.jpg" download>
+            Download Map Side (High Res)
+        </a>
+
+        <a href="tobago_art_map_info.jpg" download>
+            Download Directory Side
+        </a>
 
     </section>
 
@@ -83,43 +96,42 @@
     </div>
 </div>
 
-<!-- ARTISTS -->
-<div id="artists-view" class="view-section hidden">
-    <div id="artist-grid"></div>
-</div>
-
-<!-- ATTRACTIONS -->
-<div id="attractions-view" class="view-section hidden">
-    <div id="attractions-grid"></div>
-</div>
-
-<!-- FESTIVALS -->
-<div id="festivals-view" class="view-section hidden">
-    <div id="festivals-grid"></div>
-</div>
-
-<!-- ABOUT -->
-<div id="about-view" class="view-section hidden">
-    <h1>The Art Map 2026</h1>
-</div>
+<!-- OTHER VIEWS -->
+<div id="artists-view" class="view-section hidden"><div id="artist-grid"></div></div>
+<div id="attractions-view" class="view-section hidden"><div id="attractions-grid"></div></div>
+<div id="festivals-view" class="view-section hidden"><div id="festivals-grid"></div></div>
+<div id="about-view" class="view-section hidden"><h1>The Art Map 2026</h1></div>
 
 <!-- MODAL -->
 <div class="modal-overlay" id="profile-modal">
     <div class="modal-content">
         <button class="close-modal">&times;</button>
-        <img id="modal-img" src="">
+        <img id="modal-img">
         <h2 id="modal-title"></h2>
         <p id="modal-desc"></p>
     </div>
 </div>
 
-<!-- SCRIPTS (FIXED ORDER) -->
+<!-- SCRIPTS (IMPORTANT ORDER FIX FOR MAP) -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<!-- IMPORTANT: NO js/ prefix -->
+<!-- DATA FIRST -->
 <script src="data.js"></script>
-<script src="main.js"></script>
+
+<!-- MAP MUST LOAD AFTER DATA -->
 <script src="map.js"></script>
+
+<!-- MAIN LAST -->
+<script src="main.js"></script>
+
+<!-- SAFETY FIX: ensures map always initializes AFTER DOM -->
+<script>
+window.addEventListener("load", () => {
+    if (typeof initMap === "function") {
+        initMap();
+    }
+});
+</script>
 
 </body>
 </html>
