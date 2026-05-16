@@ -17,12 +17,18 @@ const MAP_W = 5325;
 const MAP_H = 3525;
 const mapBounds = [[-MAP_H, 0], [0, MAP_W]];
 
-// ── OPTIMIZED SCALED ENGINE CONFIGURATION ──
+// ── SAFE INITIALIZATION MAP ENGINE ──
 function initMap() {
-    if (mapInitialized) return;
+    // If already created, just force a layout update to prevent grey boxes
+    if (mapInitialized) {
+        if (mapInstance) {
+            mapInstance.invalidateSize();
+        }
+        return;
+    }
     
     const mapContainer = document.getElementById('map');
-    if (!mapContainer) return;
+    if (!mapContainer || mapContainer.clientWidth === 0) return; // Halt if container isn't visible yet
 
     mapInitialized = true;
 
@@ -38,12 +44,12 @@ function initMap() {
 
     L.imageOverlay('tobago_art_map.jpg', mapBounds).addTo(mapInstance);
     
-    // Auto-fit the canvas boundary context precisely on immediate initialization
+    // Scale down instantly to fit perfectly on screen on first layout parse
     mapInstance.fitBounds(mapBounds);
     window.map = mapInstance;
 }
 
-// ── PUBLIC MANUAL INTERFACE API BUTTON BINDS ──
+// ── MANUAL HEADER PANEL NAVIGATION ACTIONS ──
 window.manualZoomIn = () => {
     if (mapInstance) mapInstance.zoomIn(0.5);
 };
@@ -56,7 +62,7 @@ window.resetMapFrame = () => {
     if (mapInstance) mapInstance.fitBounds(mapBounds);
 };
 
-// Precise Vector Centering Logic Fixed for Cartesian Grid Tracking
+// Precise Point Mapping Axis Translator
 window.zoomToLocation = (id) => {
     if (!mapInstance || !window.directoryData) return;
     const item = window.directoryData.find(d => d.id === id);
@@ -75,15 +81,12 @@ window.zoomToLocation = (id) => {
         return; 
     }
 
-    // Centering coordinates safely inverted in negative Cartesian map space
     const centerPoint = [-targetY, targetX];
-    
-    // Set viewport coordinates clearly at a comfortable -0.5 mid-zoom layer
     mapInstance.setView(centerPoint, -0.5);
 };
 
 
-// ── CONTROLLER SYSTEM ──
+// ── RUN CONTROLLER LOGIC ON DOC READY ──
 document.addEventListener('DOMContentLoaded', () => {
     const navBtns = document.querySelectorAll('.nav-btn');
     const views = document.querySelectorAll('.view-section');
@@ -99,14 +102,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentRegion = 'All';
     let currentCategory = 'All';
 
-    initMap();
-    setTimeout(() => { 
-        initMap(); 
-        if (mapInstance) {
-            mapInstance.invalidateSize();
-            mapInstance.fitBounds(mapBounds);
-        }
-    }, 250);
+    // Renders list content instantly on background stack execution loop
+    renderDirectory();
+    renderGrids();
 
     window.switchView = (targetId) => {
         navBtns.forEach(btn => {
@@ -126,15 +124,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (targetId === 'map-view') {
-            initMap();
-            if (mapInstance) {
-                mapInstance.invalidateSize();
-                mapInstance.fitBounds(mapBounds);
-                setTimeout(() => {
+            // Force Leaflet initialization ONLY when container is unhidden
+            setTimeout(() => {
+                initMap();
+                if (mapInstance) {
                     mapInstance.invalidateSize();
                     mapInstance.fitBounds(mapBounds);
-                }, 100);
-            }
+                }
+            }, 50);
+            
+            // Backup sequence block if rendering takes an extra split-second on Vercel
+            setTimeout(() => {
+                if (mapInstance) {
+                    mapInstance.invalidateSize();
+                }
+            }, 300);
         }
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
@@ -197,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="card-info">
                     <h4>${item.name}</h4>
                     <p>${item.area}</p>
-                    <span class="card-category" style="background: ${categoryColors[item.category] || '#2D6A4F'}">${item.category}</span>
+                    <span class="card-category" style="background: ${categoryColors[item.category] || '#2D6A4F'}; color: white;">${item.category}</span>
                 </div>
                 <div class="card-arrow">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
@@ -302,7 +306,4 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modal) modal.addEventListener('click', (e) => {
         if (e.target === modal) modal.classList.remove('active');
     });
-
-    renderDirectory();
-    renderGrids();
 });
