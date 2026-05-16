@@ -14,7 +14,7 @@ const categoryColors = {
 let mapInstance;
 let mapInitialized = false;
 
-// ── EXTRACTED MAP CANVAS ENGINE ──
+// ── FIXED COORDINATE SCALAR ZOOM ENGINE ──
 function initMap() {
     if (mapInitialized) return;
     
@@ -43,7 +43,7 @@ function initMap() {
     L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
 }
 
-// PREMIUM POSITION SCALAR ZOOM ENGINE CORRECTION
+// THE CULPRIT IS FIXED HERE: Explicitly assigning X and Y array mappings
 window.zoomToLocation = (id) => {
     if (!mapInstance || !window.directoryData) return;
     const item = window.directoryData.find(d => d.id === id);
@@ -52,29 +52,29 @@ window.zoomToLocation = (id) => {
     let targetX = 0;
     let targetY = 0;
 
-    // Translate coordinates dynamically based on available data profiles
     if (item.dot) {
+        // Data format is [X, Y]. X is index 0 (Horizontal), Y is index 1 (Vertical)
         targetX = item.dot[0];
         targetY = item.dot[1];
     } else if (item.box) {
         targetX = item.box[0] + (item.box[2] / 2);
         targetY = item.box[1] + (item.box[3] / 2);
     } else {
-        return; // Break if no positioning vectors exist
+        return; 
     }
 
-    // Invert the vertical layout vector to pin perfectly inside negative Leaflet space boundaries
+    // Leaflet Simple CRS expects [-Y, X] geometry placement
     const accurateMapLatLng = [-targetY, targetX];
     
-    // Trigger smooth panning to geographic area anchor point
-    mapInstance.flyTo(accurateMapLatLng, 0, {
-        duration: 1.2,
-        easeLinearity: 0.2
+    // Zoom levels: 0 is closer, -1 is slightly further back so you can see the name context clearly
+    mapInstance.flyTo(accurateMapLatLng, -1, {
+        duration: 1.5,
+        easeLinearity: 0.25
     });
 };
 
 
-// ── FRONTEND DISPLAY LOGIC ENGINE ──
+// ── CONTROLLER LAYER ──
 document.addEventListener('DOMContentLoaded', () => {
     const navBtns = document.querySelectorAll('.nav-btn');
     const views = document.querySelectorAll('.view-section');
@@ -274,19 +274,6 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => window.zoomToLocation(item.id), 350);
         };
     }
-
-    window.highlightInDirectory = (id, scroll = true) => {
-        const targetCard = document.querySelector(`.directory-card[data-id="${id}"]`);
-        if (targetCard) {
-            if (scroll) targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            targetCard.classList.add('highlight-active');
-        }
-    };
-
-    window.unhighlightInDirectory = (id) => {
-        const targetCard = document.querySelector(`.directory-card[data-id="${id}"]`);
-        if (targetCard) targetCard.classList.remove('highlight-active');
-    };
 
     window.showProfile = (id) => {
         const item = window.directoryData.find(d => d.id === id);
