@@ -1,4 +1,3 @@
-// Global Configuration Object
 const categoryColors = {
     'Artists': '#2D6A4F',
     'Museums': '#D62828',
@@ -16,7 +15,7 @@ let mapInstance;
 let markers = [];
 let mapInitialized = false;
 
-// ── MAP ENGINE LOGIC ──
+// ── MAP INITIALIZATION ENGINE ──
 function initMap() {
     if (mapInitialized) return;
     
@@ -44,7 +43,7 @@ function initMap() {
 
     L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
 
-    // Render exact image overlays over calibration layouts
+    // Build map hotspots from directory data properties
     if (window.directoryData && Array.isArray(window.directoryData)) {
         window.directoryData.forEach(item => {
             if (item.box) {
@@ -138,7 +137,7 @@ window.filterMap = (region, category) => {
 };
 
 
-// ── INTERFACE AND CORE DIRECTORY LOGIC ──
+// ── CONTROLLER LAYER ──
 document.addEventListener('DOMContentLoaded', () => {
     const navBtns = document.querySelectorAll('.nav-btn');
     const views = document.querySelectorAll('.view-section');
@@ -154,10 +153,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentRegion = 'All';
     let currentCategory = 'All';
 
-    // Immediate initial load backup execution loop
-    setTimeout(() => {
-        initMap();
-    }, 100);
+    // Force rendering sequence initialization loop
+    initMap();
+    setTimeout(() => { initMap(); }, 200);
 
     window.switchView = (targetId) => {
         navBtns.forEach(btn => {
@@ -253,7 +251,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
             
-            card.addEventListener('click', () => openModal(item));
+            // Map Zoom Binding Added Here: 
+            card.addEventListener('click', () => {
+                window.zoomToLocation(item.id);
+                // Also highlight on hotspot map overlay
+                window.highlightHotspot(item.id);
+            });
             
             card.addEventListener('mouseenter', () => window.highlightHotspot(item.id));
             card.addEventListener('mouseleave', () => window.unhighlightHotspot(item.id));
