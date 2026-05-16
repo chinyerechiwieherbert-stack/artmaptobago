@@ -54,7 +54,7 @@ window.zoomToLocation = (id) => {
     if (!item) return;
 
     let target = null;
-    let zoomLevel = -0.5;
+    let zoomLevel = -1.2;
 
     if (item.box) {
         const [bx, by, bw, bh] = item.box;
@@ -87,11 +87,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const navBtns = document.querySelectorAll('.nav-btn');
     const views = document.querySelectorAll('.view-section');
     const directoryList = document.getElementById('directory-list');
-    const artistGrid = document.getElementById('artist-grid');
-    const attractionsGrid = document.getElementById('attractions-grid');
-    const festivalsGrid = document.getElementById('festivals-grid');
-    const regionTags = document.querySelectorAll('#region-filters .tag');
-    const categoryTags = document.querySelectorAll('#category-filters .tag');
     const modal = document.getElementById('profile-modal');
     const closeModalBtn = document.querySelector('.close-modal');
 
@@ -104,16 +99,15 @@ document.addEventListener('DOMContentLoaded', () => {
             mainNav.classList.toggle('mobile-active');
         });
     }
-    // ------------------------------------------------
     
     let currentRegion = 'All';
     let currentCategory = 'All';
 
+    // GUARANTEED RENDERING
     renderDirectory();
     renderGrids();
 
     window.switchView = (targetId) => {
-        // Close the mobile menu automatically when a tab is selected
         if (mainNav) mainNav.classList.remove('mobile-active');
 
         navBtns.forEach(btn => {
@@ -156,37 +150,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    const regionTags = document.querySelectorAll('#region-filters .tag');
     regionTags.forEach(tag => {
         tag.addEventListener('click', () => {
             regionTags.forEach(t => t.classList.remove('active'));
             tag.classList.add('active');
             currentRegion = tag.getAttribute('data-region');
-            filterContent();
+            renderDirectory();
         });
     });
 
+    const categoryTags = document.querySelectorAll('#category-filters .tag');
     categoryTags.forEach(tag => {
         tag.addEventListener('click', () => {
             categoryTags.forEach(t => t.classList.remove('active'));
             tag.classList.add('active');
             currentCategory = tag.getAttribute('data-category');
-            filterContent();
+            renderDirectory();
         });
     });
 
-    function filterContent() {
-        renderDirectory();
-    }
-
     function getPhotoHtml(item) {
+        const initial = item.name ? item.name.charAt(0) : 'A';
         if (item.photo) {
-            return `<img src="${item.photo}" alt="${item.name}" class="card-img" onerror="this.onerror=null;this.style.display='none';this.insertAdjacentHTML('afterend','<div class=\\'card-img-placeholder\\'>${item.name.charAt(0)}</div>')">`;
+            return `<img src="${item.photo}" alt="${item.name}" class="card-img" onerror="this.onerror=null;this.style.display='none';this.insertAdjacentHTML('afterend','<div class=\\'card-img-placeholder\\'>${initial}</div>')">`;
         }
-        return `<div class="card-img-placeholder">${item.name.charAt(0)}</div>`;
+        return `<div class="card-img-placeholder">${initial}</div>`;
     }
 
     function renderDirectory() {
-        if (!directoryList) return;
+        if (!directoryList || !window.directoryData) return;
         directoryList.innerHTML = '';
         
         const filteredData = window.directoryData.filter(item => {
@@ -225,23 +218,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderGrids() {
-        if (!artistGrid || !attractionsGrid) return;
-        artistGrid.innerHTML = '';
-        attractionsGrid.innerHTML = '';
+        if (!window.directoryData) return;
+        
+        const artistGrid = document.getElementById('artist-grid');
+        const attractionsGrid = document.getElementById('attractions-grid');
+        const festivalsGrid = document.getElementById('festivals-grid');
+
+        if (artistGrid) artistGrid.innerHTML = '';
+        if (attractionsGrid) attractionsGrid.innerHTML = '';
         if (festivalsGrid) festivalsGrid.innerHTML = '';
 
         window.directoryData.forEach(item => {
-            const card = createGridCard(item);
-
-            if (item.category === 'Artists') {
-                artistGrid.appendChild(card);
-            } else if (['Museums', 'Galleries', 'Heritage', 'Nature', 'Cultural Sites', 'Creative Businesses', 'Workshops', 'Public Art'].includes(item.category)) {
-                const clone = createGridCard(item);
-                attractionsGrid.appendChild(clone);
-            }
-            if (item.category === 'Festivals' && festivalsGrid) {
-                const clone = createGridCard(item);
-                festivalsGrid.appendChild(clone);
+            if (item.category === 'Artists' && artistGrid) {
+                artistGrid.appendChild(createGridCard(item));
+            } else if (['Museums', 'Galleries', 'Heritage', 'Nature', 'Cultural Sites', 'Creative Businesses', 'Workshops', 'Public Art'].includes(item.category) && attractionsGrid) {
+                attractionsGrid.appendChild(createGridCard(item));
+            } else if (item.category === 'Festivals' && festivalsGrid) {
+                festivalsGrid.appendChild(createGridCard(item));
             }
         });
     }
