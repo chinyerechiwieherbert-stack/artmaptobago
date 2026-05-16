@@ -1,3 +1,95 @@
+// Global Configuration Objects
+const categoryColors = {
+    'Artists': '#2D6A4F',
+    'Museums': '#D62828',
+    'Galleries': '#D62828',
+    'Heritage': '#D62828',
+    'Nature': '#0077B6',
+    'Cultural Sites': '#E0A96D',
+    'Creative Businesses': '#2D6A4F',
+    'Workshops': '#2D6A4F',
+    'Festivals': '#E0A96D',
+    'Public Art': '#2D6A4F'
+};
+
+let mapInstance = null;
+let mapInitialized = false;
+const MAP_W = 5325;
+const MAP_H = 3525;
+const mapBounds = [[-MAP_H, 0], [0, MAP_W]];
+
+// ── FIXED MAP INITIALIZATION FUNCTION ──
+function initMap() {
+    if (mapInitialized) {
+        if (mapInstance) mapInstance.invalidateSize({ animate: false });
+        return;
+    }
+
+    const mapContainer = document.getElementById('map');
+    if (!mapContainer) return;
+
+    // Safety fallback: if the map container is hidden or zero-sized, wait
+    if (mapContainer.clientWidth === 0 || mapContainer.clientHeight === 0) return;
+
+    mapInitialized = true;
+
+    mapInstance = L.map('map', {
+        crs: L.CRS.Simple,
+        minZoom: -3,
+        maxZoom: 1,
+        zoomControl: false,
+        attributionControl: false,
+        maxBounds: mapBounds,
+        maxBoundsViscosity: 1.0
+    });
+
+    // Clean flat path pointing directly to your root image file on GitHub
+    L.imageOverlay('tobago_art_map.jpg', mapBounds).addTo(mapInstance);
+    
+    // Default initial frame: show the whole map cleanly centered
+    mapInstance.setView([-1762.5, 2662.5], -2);
+    window.map = mapInstance;
+}
+
+// ── FIXED ZOOM TO LOCATION FUNCTION ──
+window.zoomToLocation = (id) => {
+    if (!mapInstance || !window.directoryData) return;
+    const item = window.directoryData.find(d => d.id === id);
+    if (!item) return;
+
+    let target = null;
+    let zoomLevel = -0.5; // Clean, framed zoom scale close to the text labels
+
+    if (item.dot) {
+        const [x, y] = item.dot;
+        target = [-y, x];
+    } else if (item.box) {
+        const [bx, by, bw, bh] = item.box;
+        const cx = bx + (bw / 2);
+        const cy = by + (bh / 2);
+        target = [-cy, cx];
+    }
+
+    if (target) {
+        mapInstance.setView(target, zoomLevel);
+    }
+};
+
+// ── MANUAL CONTROL BAR BUTTON ACTIONS ──
+window.manualZoomIn = () => {
+    if (mapInstance) mapInstance.zoomIn(0.5);
+};
+
+window.manualZoomOut = () => {
+    if (mapInstance) mapInstance.zoomOut(0.5);
+};
+
+window.resetMapFrame = () => {
+    if (mapInstance) mapInstance.setView([-1762.5, 2662.5], -2);
+};
+
+
+// ── CORE CONTROLLER LAYER ──
 document.addEventListener('DOMContentLoaded', () => {
     const navBtns = document.querySelectorAll('.nav-btn');
     const views = document.querySelectorAll('.view-section');
@@ -13,81 +105,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentRegion = 'All';
     let currentCategory = 'All';
 
-    // ── RESTORED LOCAL MAP INITIALIZATION ENGINE ──
-    let mapInstance;
-    let mapInitialized = false;
+    // Render list contents immediately on start
+    renderDirectory();
+    renderGrids();
 
-    function initMap() {
-        if (mapInitialized) {
-            if (mapInstance) mapInstance.invalidateSize({ animate: false });
-            return;
-        }
-
-        const mapContainer = document.getElementById('map');
-        if (!mapContainer || mapContainer.clientWidth === 0) return;
-
-        mapInitialized = true;
-        const w = 5325;
-        const h = 3525;
-        const bounds = [[-h, 0], [0, w]];
-
-        mapInstance = L.map('map', {
-            crs: L.CRS.Simple,
-            minZoom: -3,
-            maxZoom: 1,
-            zoomControl: false,
-            attributionControl: false,
-            maxBounds: bounds,
-            maxBoundsViscosity: 1.0
-        });
-
-        // FIXED PATH: Pulled directly from your flat root repository instead of assets/
-        L.imageOverlay('tobago_art_map.jpg', bounds).addTo(mapInstance);
-        
-        mapInstance.fitBounds(bounds);
-        window.map = mapInstance;
-    }
-
-    // ── MANUAL ZOOM CONTROLS FOR THE FILTER BAR ──
-    window.manualZoomIn = () => {
-        if (mapInstance) mapInstance.zoomIn(0.5);
-    };
-
-    window.manualZoomOut = () => {
-        if (mapInstance) mapInstance.zoomOut(0.5);
-    };
-
-    window.resetMapFrame = () => {
-        if (mapInstance) {
-            const bounds = [[-3525, 0], [0, 5325]];
-            mapInstance.fitBounds(bounds);
-        }
-    };
-
-    // ── LOCAL ZOOM TO LOCATION GEOMETRY ──
-    window.zoomToLocation = (id) => {
-        const item = window.directoryData.find(d => d.id === id);
-        if (!item || !mapInstance) return;
-
-        let target;
-        let zoomLevel = -0.5; // Perfectly framed zoom comfort depth
-
-        if (item.dot) {
-            const [x, y] = item.dot;
-            target = [-y, x];
-        } else if (item.box) {
-            const [bx, by, bw, bh] = item.box;
-            const cx = bx + (bw / 2);
-            const cy = by + (bh / 2);
-            target = [-cy, cx];
-        }
-
-        if (target) {
-            mapInstance.setView(target, zoomLevel);
-        }
-    };
-
-    // ── LOCAL SWITCH VIEW METHOD ──
+    // Re-synchronized View Switcher
     window.switchView = (targetId) => {
         navBtns.forEach(btn => {
             if (btn.getAttribute('data-target') === targetId) {
@@ -106,14 +128,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (targetId === 'map-view') {
+            // Force rendering intervals to ensure Leaflet captures layout geometry perfectly
             initMap();
             setTimeout(() => {
                 initMap();
-                if (mapInstance) mapInstance.invalidateSize({ animate: false });
             }, 50);
             setTimeout(() => {
                 if (mapInstance) mapInstance.invalidateSize({ animate: false });
-            }, 300);
+            }, 150);
+            setTimeout(() => {
+                if (mapInstance) mapInstance.invalidateSize({ animate: false });
+            }, 400);
         }
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -126,11 +151,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Initialize Front-End Grid Blocks
-    renderDirectory();
-    renderGrids();
-
-    // Filtering Tags Event Bindings
     regionTags.forEach(tag => {
         tag.addEventListener('click', () => {
             regionTags.forEach(t => t.classList.remove('active'));
