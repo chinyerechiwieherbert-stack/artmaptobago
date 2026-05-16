@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderDirectory();
     renderGrids();
 
-    // FIXED: Corrected the typo here so section hiding functions smoothly without crashing
+    // CLEAN FIXED ROUTER: Switches tabs properly without causing a script crash
     window.switchView = (targetId) => {
         navBtns.forEach(btn => {
             if (btn.getAttribute('data-target') === targetId) {
