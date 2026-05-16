@@ -94,8 +94,8 @@ const directoryData = [
         "photo": "shonari_richardson.png",
         "description": "Contemporary Tobago artist focusing on cultural themes.",
         "id": "loc-7",
-        "dot": [3650, 2700],
-        "box": [3650, 2700, 300, 300],
+        "dot": [3500, 2750],
+        "box": [3500, 2750, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Creator"
     },
@@ -156,7 +156,7 @@ const directoryData = [
         "iconType": "Creator"
     },
     {
-        "name": "Renee Benjamin",
+        "name": "Renease Benjamin",
         "category": "Artists",
         "type": "Artist",
         "region": "Southwest",
