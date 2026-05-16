@@ -487,7 +487,8 @@ h1, h2, h3, h4, h5, h6 {
   .top-filter-bar { gap: 1.5rem; padding: 1rem; }
 }
 
-/@media (max-width: 768px) {
+/* ── COMPLETE MOBILE OVERRIDES ── */
+@media (max-width: 768px) {
   .mobile-toggle { 
     display: flex; 
   }
@@ -518,7 +519,7 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 1rem;
   }
 
-  /* CRITICAL FIX: Force the map and directory to take up exactly half the screen each */
+  /* Map Container Mobile Fixes */
   .explore-container { 
     flex-direction: column-reverse; 
     height: auto; 
@@ -534,37 +535,20 @@ h1, h2, h3, h4, h5, h6 {
     height: 55vh; 
     min-height: 400px; 
   }
-}
-  }
-  
-  /* Convert the horizontal nav into a premium vertical dropdown */
-  .main-nav { 
-    display: none; /* Hidden by default */
-    position: absolute;
-    top: var(--header-height);
-    left: 0;
-    width: 100%;
-    background-color: var(--primary-green);
-    flex-direction: column;
-    padding: 1rem 0;
-    box-shadow: var(--shadow-lg);
-    border-bottom: var(--border-strong);
-    border-color: rgba(255, 255, 255, 0.1);
+
+  /* CRITICAL FIX: Forces cards to stack flawlessly on small screens so images don't warp */
+  #artist-grid, 
+  #attractions-grid, 
+  #festivals-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
   }
 
-  /* When the JS adds this class, the menu opens */
-  .main-nav.mobile-active {
-    display: flex;
+  .view-section {
+    padding: 2rem 1rem !important;
   }
 
-  /* Make the buttons huge and easy to tap on phones */
-  .nav-btn {
-    width: 100%;
-    padding: 1.2rem;
-    justify-content: center;
-    font-size: 1rem;
+  .grid-card-visual {
+    height: 220px;
   }
-
-  .explore-container { flex-direction: column-reverse; }
-  .directory-side { width: 100%; height: 40vh; }
 }
