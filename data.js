@@ -8,8 +8,8 @@ const directoryData = [
         "photo": "martin_superville.jpg",
         "description": "Renowned Tobago artist known for vibrant depictions of island life and culture.",
         "id": "loc-1",
-        "dot": [2800, 2800],
-        "box": [1300, 3200, 150, 200],
+        "dot": [1650, 3150],
+        "box": [1650, 3150, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Creator"
     },
@@ -22,8 +22,8 @@ const directoryData = [
         "photo": "dean_martin.jpg",
         "description": "Local artist capturing the essence of Tobago through expressive works.",
         "id": "loc-2",
-        "dot": [2850, 2850],
-        "box": [1700, 3200, 150, 200],
+        "dot": [2150, 3150],
+        "box": [2150, 3150, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Creator"
     },
@@ -36,8 +36,8 @@ const directoryData = [
         "photo": "ike_ojuro.jpg",
         "description": "Contemporary designer and artist pushing creative boundaries in Tobago.",
         "id": "loc-3",
-        "dot": [2900, 2900],
-        "box": [2100, 3200, 150, 200],
+        "dot": [2650, 3150],
+        "box": [2650, 3150, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Creator"
     },
@@ -51,8 +51,8 @@ const directoryData = [
         "address": "Shaw Park, Scarborough, Tobago",
         "description": "Tobago's premier performing arts theater and exhibition space.",
         "id": "loc-4",
-        "dot": [3000, 2950],
-        "box": [2500, 3200, 150, 200],
+        "dot": [3150, 3150],
+        "box": [3150, 3150, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Culture"
     },
@@ -66,8 +66,8 @@ const directoryData = [
         "address": "84 Fort Street, Scarborough, Tobago (Inside Fort King George)",
         "description": "Located within Fort King George, showcasing the rich history of Tobago.",
         "id": "loc-5",
-        "dot": [3100, 3000],
-        "box": [2900, 3200, 150, 200],
+        "dot": [3650, 3150],
+        "box": [3650, 3150, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Gallery"
     },
@@ -80,8 +80,8 @@ const directoryData = [
         "photo": "magdalena_gallery.jpg",
         "description": "A premium space showcasing local and regional fine art.",
         "id": "loc-6",
-        "dot": [3200, 3050],
-        "box": [3300, 3200, 150, 200],
+        "dot": [4150, 3150],
+        "box": [4150, 3150, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Gallery"
     },
@@ -94,8 +94,8 @@ const directoryData = [
         "photo": "shonari_richardson.png",
         "description": "Contemporary Tobago artist focusing on cultural themes.",
         "id": "loc-7",
-        "dot": [3300, 3100],
-        "box": [3700, 3200, 150, 200],
+        "dot": [3650, 2700],
+        "box": [3650, 2700, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Creator"
     },
@@ -108,8 +108,8 @@ const directoryData = [
         "photo": "nick_mckenna.png",
         "description": "Artist known for unique perspectives on Tobago's landscape.",
         "id": "loc-8",
-        "dot": [3400, 3150],
-        "box": [4100, 3200, 150, 200],
+        "dot": [4150, 2700],
+        "box": [4150, 2700, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Creator"
     },
@@ -122,8 +122,8 @@ const directoryData = [
         "photo": "anthony_mckenna.jpg",
         "description": "Creative spirit based in the vibrant Crown Point area.",
         "id": "loc-9",
-        "dot": [1700, 3200],
-        "box": [50, 2000, 150, 200],
+        "dot": [100, 2800],
+        "box": [100, 2800, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Creator"
     },
@@ -136,8 +136,8 @@ const directoryData = [
         "photo": "garys_wraps.jpg",
         "description": "Innovative local brand blending creativity with commerce.",
         "id": "loc-10",
-        "dot": [1750, 3150],
-        "box": [450, 1600, 150, 200],
+        "dot": [550, 2400],
+        "box": [550, 2400, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Creator"
     },
@@ -150,8 +150,8 @@ const directoryData = [
         "photo": "planet_ceramics.jpeg",
         "description": "Ceramic studio and workshop producing unique island-inspired pottery.",
         "id": "loc-11",
-        "dot": [1800, 3100],
-        "box": [50, 1600, 150, 200],
+        "dot": [100, 2400],
+        "box": [100, 2400, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Creator"
     },
@@ -164,8 +164,8 @@ const directoryData = [
         "photo": "renee_benjamin.jpg",
         "description": "Artist capturing the light and life of Southwest Tobago.",
         "id": "loc-12",
-        "dot": [1650, 3250],
-        "box": [450, 2000, 150, 200],
+        "dot": [650, 3150],
+        "box": [650, 3150, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Creator"
     },
@@ -178,8 +178,8 @@ const directoryData = [
         "photo": "joseph_bacchus.jpg",
         "description": "Local artist with a deep connection to the Crown Point community.",
         "id": "loc-13",
-        "dot": [1600, 3300],
-        "box": [850, 2000, 150, 200],
+        "dot": [1150, 3150],
+        "box": [1150, 3150, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Creator"
     },
@@ -192,6 +192,8 @@ const directoryData = [
         "photo": "collis_street_art.jpg",
         "description": "Vibrant street art that brings the walls of Crown Point to life.",
         "id": "loc-14",
+        "dot": [150, 3150],
+        "box": [150, 3150, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Creator"
     },
@@ -204,8 +206,8 @@ const directoryData = [
         "photo": "amber_shaw.jpeg",
         "description": "Plymouth-based artist known for intricate and meaningful works.",
         "id": "loc-15",
-        "dot": [2450, 1950],
-        "box": [50, 400, 150, 200],
+        "dot": [100, 1200],
+        "box": [100, 1200, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Creator"
     },
@@ -219,8 +221,8 @@ const directoryData = [
         "address": "Kimme Drive, Bethel, Tobago",
         "description": "The castle-like studio and museum of the late Luise Kimme, featuring monumental sculptures.",
         "id": "loc-16",
-        "dot": [2350, 2300],
-        "box": [450, 400, 150, 200],
+        "dot": [550, 1200],
+        "box": [550, 1200, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Gallery"
     },
@@ -233,8 +235,8 @@ const directoryData = [
         "photo": "arletys_arias.jpg",
         "description": "Artist bringing a unique contemporary voice to the Plymouth region.",
         "id": "loc-17",
-        "dot": [2420, 1980],
-        "box": [850, 400, 150, 200],
+        "dot": [1000, 1200],
+        "box": [1000, 1200, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Creator"
     },
@@ -247,8 +249,8 @@ const directoryData = [
         "photo": "chinyere_herbert.jpeg",
         "description": "Multi-disciplinary creative, graphic designer and art curator.",
         "id": "loc-18",
-        "dot": [2480, 2020],
-        "box": [1250, 400, 150, 200],
+        "dot": [1500, 1200],
+        "box": [1500, 1200, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Creator"
     },
@@ -261,8 +263,8 @@ const directoryData = [
         "photo": "tomley_roberts.jpg",
         "description": "Artist and educator deeply rooted in Tobago's art education and creation.",
         "id": "loc-19",
-        "dot": [2520, 2050],
-        "box": [1650, 400, 150, 200],
+        "dot": [2000, 1200],
+        "box": [2000, 1200, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Creator"
     },
@@ -276,8 +278,8 @@ const directoryData = [
         "photo": "Museum Buccoo.jpeg",
         "description": "Community museum celebrating the heritage and culture of Buccoo.",
         "id": "loc-20",
-        "dot": [2150, 2650],
-        "box": [50, 1200, 150, 200],
+        "dot": [100, 2000],
+        "box": [100, 2000, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Gallery"
     },
@@ -290,8 +292,8 @@ const directoryData = [
         "photo": "healing_with_horses.jpg",
         "description": "A therapeutic and cultural center offering unique experiences with horses.",
         "id": "loc-21",
-        "dot": [2100, 2700],
-        "box": [450, 1200, 150, 200],
+        "dot": [550, 2000],
+        "box": [550, 2000, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Castle"
     },
@@ -304,8 +306,8 @@ const directoryData = [
         "photo": "mystery_tombstone.jpg",
         "description": "A famous historical landmark with an enigmatic inscription from 1783.",
         "id": "loc-22",
-        "dot": [2580, 2100],
-        "box": [50, 800, 150, 200],
+        "dot": [100, 1600],
+        "box": [100, 1600, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Castle"
     },
@@ -318,8 +320,8 @@ const directoryData = [
         "photo": "duniesky_lora.jpg",
         "description": "Sculptor and artist creating powerful works in the Western Coast region.",
         "id": "loc-23",
-        "dot": [2620, 2150],
-        "box": [850, 800, 150, 200],
+        "dot": [1000, 1600],
+        "box": [1000, 1600, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Creator"
     },
@@ -332,8 +334,8 @@ const directoryData = [
         "photo": "jason_nedd.jpg",
         "description": "Artist capturing the rugged beauty and spirit of Northern Tobago.",
         "id": "loc-24",
-        "dot": [4420, 560],
-        "box": [670, 115, 150, 200],
+        "dot": [4000, 400],
+        "box": [4000, 400, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Creator"
     },
@@ -346,6 +348,8 @@ const directoryData = [
         "photo": "tvaa.jpg",
         "description": "An organization dedicated to supporting and promoting visual artists across Tobago.",
         "id": "loc-25",
+        "dot": [1500, 800],
+        "box": [1500, 800, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Creator"
     },
@@ -358,6 +362,8 @@ const directoryData = [
         "photo": "suzi_alfred.png",
         "description": "Artist inspired by the serene and natural environment of Castara.",
         "id": "loc-26",
+        "dot": [2500, 800],
+        "box": [2500, 800, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Creator"
     },
@@ -370,8 +376,8 @@ const directoryData = [
         "photo": "jahby_art.jpg",
         "description": "Craft and art that embodies the Northern Tobago spirit.",
         "id": "loc-27",
-        "dot": [4040, 680],
-        "box": [5010, 115, 150, 200],
+        "dot": [3000, 400],
+        "box": [3000, 400, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Creator"
     },
@@ -385,6 +391,8 @@ const directoryData = [
         "address": "84 Fort Street, Scarborough, Tobago",
         "description": "Tobago's best-preserved colonial fort, offering panoramic views and history.",
         "id": "loc-28",
+        "dot": [3650, 3150],
+        "box": [3650, 3150, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Castle"
     },
@@ -397,8 +405,8 @@ const directoryData = [
         "photo": "botanical_gardens.jpeg",
         "description": "Lush gardens in the heart of Scarborough featuring tropical flora.",
         "id": "loc-29",
-        "dot": [3050, 2850],
-        "box": [2600, 2600, 150, 200],
+        "dot": [3150, 2700],
+        "box": [3150, 2700, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Water"
     },
@@ -412,8 +420,8 @@ const directoryData = [
         "address": "91 Allfields Trace, Lowlands, Tobago",
         "description": "A vibrant gallery and artisan hub in the Lowlands area.",
         "id": "loc-30",
-        "dot": [2050, 2750],
-        "box": [850, 1200, 150, 200],
+        "dot": [1000, 2000],
+        "box": [1000, 2000, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Gallery"
     },
@@ -427,6 +435,8 @@ const directoryData = [
         "photo": "The Art Gallery.jpeg",
         "description": "A key space for experiencing contemporary Tobago art.",
         "id": "loc-31",
+        "dot": [2000, 2000],
+        "box": [2000, 2000, 300, 300],
         "contact": "Contact via gallery/venue",
         "iconType": "Gallery"
     }
@@ -445,7 +455,7 @@ const getIconSvg = (type) => {
     let color = colorMap[type] || '#333';
     
     if (type === 'Castle') {
-        return `<svg fill="${color}" viewBox="0 0 24 24"><path d="M21 9v2h-2v11h-4v-6H9v6H5V11H3V9h2V5h2v4h2V5h2v4h2V5h2v4h2V5h2v4h2V5h2v4h2z"/></svg>`;
+        return `<svg fill="${color}" viewBox="0 0 24 24"><path d="M21 9v2h-2v11h-4v-6H9v6H5V11H3V9h2V5h2v4h2V5h2v4h2V5h2v4h2V5h2v4h2z"/></svg>`;
     } else if (type === 'Water') {
         return `<svg fill="${color}" viewBox="0 0 24 24"><path d="M12 2c0 0-8 8-8 13a8 8 0 0 0 16 0c0-5-8-13-8-13z"/></svg>`;
     } else if (type === 'Windmill') {
